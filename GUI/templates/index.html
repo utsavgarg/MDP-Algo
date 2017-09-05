@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MDP Group 26</title>
+	<link rel="stylesheet" type="text/css" href="static/style.css">
+	<link rel="stylesheet" type="text/css" href="static/fonts/font.css">
+</head>
+<body>
+	<div id='parent'>
+		<div id='sidebar'>
+			<div id="sidebar-heading" class="headings"><h3>MDP GROUP 26</h3></div>
+			<div id=sidebar-content>
+				<button id="start">Exploration</button>
+				<button onclick="waypoint()">Fastest Path</button>
+				<div id="waypoint" style="display: none">
+					<p class="headings" style="text-align: left;">ENTER WAYPOINT:</p>
+					<form onsubmit="fastestpath()">
+					  <p class="headings" style="text-align: left;">X</p>
+					  <input type="text" name="x" value=10>
+					  <br>
+					  <p class="headings" style="text-align: left;">Y</p>
+					  <input type="text" name="y" value=10>
+					  <br><br>
+					  <input type="submit" value="Submit">
+					</form> 
+				</div>
+				<button id="stop">Stop</button>
+				<button id="reset">Reset</button>
+				<p class="headings" style="text-align: left;">TIMER:</p>
+				<p class="headings" style="text-align: left;">EXPLORED:</p>
+			</div>
+		</div>
+		<div id='main'>
+			<div id='arena'>
+				<canvas id="canvas" width="450" height="600">
+					
+				</canvas>
+				
+			</div>
+		</div>
+		<div id='logs'>
+			<div id="logs-heading" class="headings"><h3>LOGS</h3></div>
+			<div id=logs-content>
+			</div>
+		</div>
+
+	</div>
+
+	
+	<script type="text/javascript" src="static/custom.js"></script>
+</body>
+</html>
