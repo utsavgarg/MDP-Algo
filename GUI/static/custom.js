@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	        case 4: return "#08ae69"; // goal
 	        case 5: return "#354458"; // robot
 	        case 6: return "#7acdc8"; // path
-	        case 7: return "#673ab7"; // waypoint
+	        case 7: return "#673ab7"; // way-point
 	        default: return "#1a1e24";
 	    }
 	}
@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 
 	document.getElementById('reset').addEventListener('click', function(e){
 		var r = new XMLHttpRequest();
+		roboPath = [];
 		r.open("GET", "/reset");
 		r.send();
 	});
@@ -140,11 +141,11 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	}
 
 	function waypoint(){
-		document.getElementById('waypoint').style.display = 'block';
+		document.getElementById('way-point').style.display = 'block';
 	}
 
 	function fastestpath(){
-		document.getElementById('waypoint').style.display = 'none';
+		document.getElementById('way-point').style.display = 'none';
 	}
 
 	function wsConnect() {
