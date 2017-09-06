@@ -11,6 +11,7 @@ __author__ = "Utsav Garg"
 
 
 class Exploration:
+
     """Implementation of the Right-Wall hugging algorithm for a maze solving
        robot.
        The implementation assumes that the robot starts at the bottom-left corner of the map,
