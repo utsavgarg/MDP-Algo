@@ -67,6 +67,14 @@ html,body{
 	height: 100%;
 }
 
+#timer{
+  color: white;
+}
+
+#area{
+  color: white;
+}
+
 .headings{
   color: #9ea2a9;
   text-align: center;
@@ -107,4 +115,20 @@ input[type="submit"]{
 	border: none;
 	color: #fff;
 	cursor: pointer;
+}
+
+#logs::-webkit-scrollbar-track
+{
+  background-color: #F5F5F5;
+}
+
+#logs::-webkit-scrollbar
+{
+  width: 12px;
+  background-color: #F5F5F5;
+}
+
+#logs::-webkit-scrollbar-thumb
+{
+  background-color: #455062;
 }

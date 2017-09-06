@@ -11,6 +11,7 @@ class Robot:
         self.center = np.asarray(start)
         self.head = np.asarray([start[0]-1, start[1]])
         self.realMap = realMap
+        self.movement = []
         self.map = self.loadMap()
         self.markArea(start, 1)
 
@@ -68,33 +69,33 @@ class Robot:
 
         # FL
         if self.direction == NORTH:
-            sensors[0] = self.getValue(zip(range(r-maxDistance-1, r-1), [c-1]*maxDistance))
+            sensors[0] = self.getValue(zip(range(r-maxDistance-1, r-1), [c-1]*maxDistance)[::-1])
         elif self.direction == EAST:
-            sensors[0] = self.getValue(zip([r-1]*maxDistance, range(c+1, c+maxDistance+1)))
+            sensors[0] = self.getValue(zip([r-1]*maxDistance, range(c+2, c+maxDistance+2)))
         elif self.direction == WEST:
-            sensors[0] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance-1, c-1)))
+            sensors[0] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance, c))[::-1])
         else:
-            sensors[0] = self.getValue(zip(range(r+1, r+maxDistance+1), [c+1]*maxDistance))
+            sensors[0] = self.getValue(zip(range(r+2, r+maxDistance+2), [c+1]*maxDistance))
 
         # FM
         if self.direction == NORTH:
-            sensors[1] = self.getValue(zip(range(r-maxDistance-1, r-1), [c]*maxDistance))
+            sensors[1] = self.getValue(zip(range(r-maxDistance-1, r-1), [c]*maxDistance)[::-1])
         elif self.direction == EAST:
-            sensors[1] = self.getValue(zip([r]*maxDistance, range(c+1, c+maxDistance+1)))
+            sensors[1] = self.getValue(zip([r]*maxDistance, range(c+2, c+maxDistance+2)))
         elif self.direction == WEST:
-            sensors[1] = self.getValue(zip([r]*maxDistance, range(c-maxDistance-1, c-1)))
+            sensors[1] = self.getValue(zip([r]*maxDistance, range(c-maxDistance, c))[::-1])
         else:
-            sensors[1] = self.getValue(zip(range(r+1, r+maxDistance+1), [c]*maxDistance))
+            sensors[1] = self.getValue(zip(range(r+2, r+maxDistance+2), [c]*maxDistance))
 
         # FR
         if self.direction == NORTH:
-            sensors[2] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance))
+            sensors[2] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
         elif self.direction == EAST:
-            sensors[2] = self.getValue(zip([r+1]*maxDistance, range(c+1, c+maxDistance+1)))
+            sensors[2] = self.getValue(zip([r+1]*maxDistance, range(c+2, c+maxDistance+2)))
         elif self.direction == WEST:
-            sensors[2] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance-1, c-1)))
+            sensors[2] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
         else:
-            sensors[2] = self.getValue(zip(range(r+1, r+maxDistance+1), [c-1]*maxDistance))
+            sensors[2] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
 
         # RT
         if self.direction == NORTH:
@@ -102,9 +103,9 @@ class Robot:
         elif self.direction == EAST:
             sensors[3] = self.getValue(zip(range(r+2, r+maxDistance+2), [c+1]*maxDistance))
         elif self.direction == WEST:
-            sensors[3] = self.getValue(zip(range(r-maxDistance-2, r-2), [c-1]*maxDistance))
+            sensors[3] = self.getValue(zip(range(r-maxDistance-1, r-1), [c-1]*maxDistance)[::-1])
         else:
-            sensors[3] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance-2, c-2)))
+            sensors[3] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance, c))[::-1])
 
         # RB
         if self.direction == NORTH:
@@ -112,15 +113,15 @@ class Robot:
         elif self.direction == EAST:
             sensors[4] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
         elif self.direction == WEST:
-            sensors[4] = self.getValue(zip(range(r-maxDistance-2, r-2), [c+1]*maxDistance))
+            sensors[4] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
         else:
-            sensors[4] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance-2, c-2)))
+            sensors[4] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
 
         # LT
         if self.direction == NORTH:
-            sensors[5] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance-2, c-2)))
+            sensors[5] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
         elif self.direction == EAST:
-            sensors[5] = self.getValue(zip(range(r-maxDistance-2, r-2), [c+1]*maxDistance))
+            sensors[5] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
         elif self.direction == WEST:
             sensors[5] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
         else:
@@ -129,59 +130,48 @@ class Robot:
         return sensors
 
     def moveBot(self, movement):
+        self.movement.append(movement)
         if self.direction == NORTH:
             if movement == RIGHT:
                 self.direction = EAST
                 self.head = self.head + [1, 1]
-                # self.markRobot()
             elif movement == LEFT:
                 self.direction = WEST
                 self.head = self.head + [1, -1]
-                # self.markRobot()
             else:
                 self.head = self.head + [-1, 0]
                 self.center = self.center + [-1, 0]
                 self.markArea(self.center, 1)
-                # self.markRobot()
         elif self.direction == EAST:
             if movement == RIGHT:
                 self.direction = SOUTH
                 self.head = self.head + [1, -1]
-                # self.markRobot()
             elif movement == LEFT:
                 self.direction = NORTH
                 self.head = self.head + [-1, -1]
-                # self.markRobot()
             else:
                 self.head = self.head + [0, 1]
                 self.center = self.center + [0, 1]
                 self.markArea(self.center, 1)
-                # self.markRobot()
         elif self.direction == SOUTH:
             if movement == RIGHT:
                 self.direction = WEST
                 self.head = self.head + [-1, -1]
-                # self.markRobot()
             elif movement == LEFT:
                 self.direction = EAST
                 self.head = self.head + [-1, 1]
-                # self.markRobot()
             else:
                 self.head = self.head + [1, 0]
                 self.center = self.center + [1, 0]
                 self.markArea(self.center, 1)
-                # self.markRobot()
         else:
             if movement == RIGHT:
                 self.direction = NORTH
                 self.head = self.head + [-1, 1]
-                # self.markRobot()
             elif movement == LEFT:
                 self.direction = SOUTH
                 self.head = self.head + [1, 1]
-                # self.markRobot()
             else:
                 self.head = self.head + [0, -1]
                 self.center = self.center + [0, -1]
                 self.markArea(self.center, 1)
-                # self.markRobot()

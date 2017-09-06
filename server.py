@@ -71,26 +71,32 @@ class StopHandler(web.RequestHandler):
 
 def startExploration():
     global exp
+    global t_s
     exp = Exploration('map.txt', 5)
+    t_s = time.time()
+    print 'Exploration Started !'
     t2 = FuncThread(exploration, exp)
     t2.start()
     t2.join()
 
 
 def exploration(exp):
-    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL)
+    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0, '')
     current = exp.moveStep()
     steps = 0
     while (not current and steps < 150):
-        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL)
+        elapsedTime = round(time.time()-t_s, 2)
+        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
+               elapsedTime, exp.robot.movement)
         current = exp.moveStep()
         steps += 1
         time.sleep(0.1)
-    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL)
+    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
+           elapsedTime, exp.robot.movement)
     print 'Exploration Done !'
 
 
-def update(current_map, exploredArea, center, head, start, goal):
+def update(current_map, exploredArea, center, head, start, goal, elapsedTime, log):
     for key in clients:
         message = dict()
         message['area'] = exploredArea
@@ -100,6 +106,8 @@ def update(current_map, exploredArea, center, head, start, goal):
         message['map'] = json.dumps(str(tempMap))
         message['center'] = str(center.tolist())[1:-1]
         message['head'] = str(head.tolist())[1:-1]
+        message['time'] = elapsedTime
+        message['msg'] = str(log)[1:-1]
         clients[key]['object'].write_message(json.dumps(message))
 
 

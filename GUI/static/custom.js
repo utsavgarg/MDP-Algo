@@ -18,14 +18,13 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	function getStyle(cell) {
 	    switch(cell) {
 	        case 0: return "#1a1e24"; // unexplored
-	        case 1: return "#d3d3d3"; // explored
+	        case 1: return "#F3F3F3"; // explored
 	        case 2: return "#f44336"; // obstacle
-	        case 3: return "#03a9f4"; // start
-	        case 4: return "#009688"; // goal
-	        case 5: return "#428BCA"; // robot
-	        case 6: return "#ffeb3b"; // path
-	        case 7: return "#ff9800"; // fastest path
-	        case 8: return "#673ab7"; // waypoint
+	        case 3: return "#30807d"; // start
+	        case 4: return "#08ae69"; // goal
+	        case 5: return "#354458"; // robot
+	        case 6: return "#7acdc8"; // path
+	        case 7: return "#673ab7"; // waypoint
 	        default: return "#1a1e24";
 	    }
 	}
@@ -46,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 				context.closePath();
 			}
 		}
-		context.fill();
 
 		// add path
 		if (roboPath){
@@ -76,12 +74,35 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 			context.stroke();
 			context.closePath();
 			context.beginPath();
+			context.fillStyle = getStyle(6);
 			context.moveTo(30*head[1] + 20, 30*head[0] + 20);
 			context.arc(30*head[1] + 15, 30*head[0] + 20, 5, 0, 2 * Math.PI, true);
-			context.stroke();
+			context.fill();
 			context.closePath();
 		}
         context.restore();
+    }
+
+    function log(area, time, msg){
+    	var movementMap = {};
+    	movementMap['A'] = "Turn Left";
+    	movementMap['D'] = "Turn Right";
+    	movementMap['W'] = "Move Forward";
+    	if (area){
+    		document.getElementById('area').innerHTML = area+'/300';
+    	}
+    	if (time){
+    		document.getElementById('timer').innerHTML = time+' s';
+    		
+    	}
+    	if (msg){
+    		msg = msg.split(', ');
+    		var temp = "";
+    		for (var i = 0; i < msg.length; i++) {;
+    			temp = temp + movementMap[msg[i][1]] + "<br>";
+    		}
+    		document.getElementById('logs-content').innerHTML = temp;
+    	}
     }
 
 
@@ -136,9 +157,12 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    	var map = parseJson(JSON.parse(data.map));
 	    	var center = data.center;
 	    	var head = data.head;
+	    	var area = data.area;
+	    	var time = data.time;
+	    	var msg = data.msg;
 	    	roboPath.push(center);
 	    	draw(map, center, head);
-
+	    	log(area, time, msg);
 	    };
 	}
 
