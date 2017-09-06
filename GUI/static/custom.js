@@ -1,3 +1,10 @@
+/**
+ * @file {custom.js} 
+ * For receiving messages from back-end to update the UI and sending messages to initiate
+ 	algorithms.
+* @author {Utsav Garg}
+ */
+
 document.addEventListener('DOMContentLoaded', function initialize(e) {
 
 	// Getting elements of arena
@@ -84,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
     }
 
     function log(area, time, msg){
+    	// To fill the timer, area explored and log messages
     	var movementMap = {};
     	movementMap['A'] = "Turn Left";
     	movementMap['D'] = "Turn Right";
@@ -126,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	});
 
 	function parseJson(map){
+		// Parsing string map to JavaScript array
 		var parsedMap = [];
 		map = map.slice(1, -1); // Removing extra brackets
 		var tempCnt = 1; // For removing extra spaces
