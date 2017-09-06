@@ -1,0 +1,18 @@
+*server_sim.js
+	* ResetHandler doesn't work
+	* StopHandler doesn't work
+	* WebSocket doesn't respond/closes after one exploration run
+	* No way to kill the program
+
+* fastest-path algo left
+
+* Real robot program left
+
+* RPi server left
+
+* Exploration.py
+	* Test and fix bugs (if any)
+	* Think of any edge cases
+
+* Simulator.py
+	* Test and fix bugs (if any)
