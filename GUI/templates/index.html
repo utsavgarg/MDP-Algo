@@ -11,17 +11,17 @@
 			<div id="sidebar-heading" class="headings"><h3>MDP GROUP 26</h3></div>
 			<div id=sidebar-content>
 				<button id="start">Exploration</button>
-				<button onclick="waypoint()">Fastest Path</button>
+				<button id='waypoint'>Fastest Path</button>
 				<div id="way-point" style="display: none">
 					<p class="headings" style="text-align: left;">ENTER WAYPOINT:</p>
-					<form onsubmit="fastestpath()">
+					<form>
 					  <p class="headings" style="text-align: left;">X</p>
-					  <input type="text" name="x" value=10>
+					  <input type="text" name="x" value=10 id='way-x'>
 					  <br>
 					  <p class="headings" style="text-align: left;">Y</p>
-					  <input type="text" name="y" value=10>
+					  <input type="text" name="y" value=10 id='way-y'>
 					  <br><br>
-					  <input type="submit" value="Submit">
+					  <input id="fsp" type="submit" value="Submit">
 					</form> 
 				</div>
 				<button id="stop">Stop</button>

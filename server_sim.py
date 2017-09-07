@@ -7,6 +7,7 @@ Attributes:
     settings (dict): Settings for the web-server
 """
 import json
+import numpy as np
 import os
 import time
 import tornado.web as web
@@ -16,13 +17,27 @@ import threading
 
 from tornado.options import define, options
 from Algo.Exploration import Exploration
-from Algo.Constants import START, GOAL
+from Algo.FastestPath import FastestPath
+from Algo.Constants import START, GOAL, NORTH
 
 __author__ = "Utsav Garg"
 
 define("port", default=8888, help="run on the given port", type=int)
 
 clients = dict()
+
+
+'''
+currentMap = np.asarray([[1]*15]*20)
+'''
+
+
+def loadMap(name):
+        with open(os.path.join('Maps', name)) as f:
+            return np.genfromtxt(f, dtype=int, delimiter=1)
+currentMap = loadMap('map.txt')
+# '''
+area = 0
 
 
 class FuncThread(threading.Thread):
@@ -124,6 +139,20 @@ class StopHandler(web.RequestHandler):
         self.flush()
 
 
+class FSPHandler(web.RequestHandler):
+
+    """Handles the start of fastest path for the maze
+    """
+
+    @web.asynchronous
+    def get(self):
+        self.x = self.get_argument("x")
+        self.y = self.get_argument("y")
+        self.write("Starting...")
+        startFastestPath([self.x, self.y])
+        self.flush()
+
+
 def startExploration():
     """To start the exploration of the maze
     """
@@ -143,19 +172,60 @@ def exploration(exp):
     Args:
         exp (Exploration): New instance of the exploration class
     """
+    global currentMap
+    global area
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0, '')
     current = exp.moveStep()
+    currentMap = exp.currentMap
+    area = exp.exploredArea
     steps = 0
     while (not current and steps < 150):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
                elapsedTime, exp.robot.movement)
         current = exp.moveStep()
+        currentMap = exp.currentMap
+        area = exp.exploredArea
         steps += 1
         time.sleep(0.1)
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
            elapsedTime, exp.robot.movement)
     print 'Exploration Done !'
+    fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction, None)
+    print 'Fastest Path Started !'
+    fastestPath(fsp, START, exp.exploredArea, None)
+
+
+def startFastestPath(waypoint):
+    """To start the fastest path of the maze
+    """
+    global fsp
+    global t_s
+    waypoint = map(int, waypoint)
+    fsp = FastestPath(currentMap, START, GOAL, NORTH, None)
+    t_s = time.time()
+    print 'Fastest Path Started !'
+    t3 = FuncThread(fastestPath, fsp, GOAL, area, waypoint)
+    t3.start()
+    t3.join()
+
+
+def markMap(curMap, waypoint):
+    if waypoint:
+        curMap[tuple(waypoint)] = 7
+    return curMap
+
+
+def fastestPath(fsp, goal, area, waypoint):
+    fsp.getFastestPath()
+    print fsp.path
+    while (fsp.robot.center.tolist() != goal.tolist()):
+        fsp.moveStep()
+        elapsedTime = round(time.time()-t_s, 2)
+        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
+               START, GOAL, elapsedTime, fsp.robot.movement)
+        time.sleep(0.1)
+    print 'Fastest Path Done !'
 
 
 def update(current_map, exploredArea, center, head, start, goal, elapsedTime, log):
@@ -196,6 +266,7 @@ app = web.Application([
     (r'/start', StartHandler),
     (r'/reset', ResetHandler),
     (r'/stop', StopHandler),
+    (r'/fsp', FSPHandler),
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 

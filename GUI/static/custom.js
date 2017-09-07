@@ -149,13 +149,18 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		return parsedMap;
 	}
 
-	function waypoint(){
+	document.getElementById('waypoint').addEventListener('click', function(e){
 		document.getElementById('way-point').style.display = 'block';
-	}
+	});
 
-	function fastestpath(){
+	document.getElementById('fsp').addEventListener('click', function(e){
 		document.getElementById('way-point').style.display = 'none';
-	}
+		var x = document.getElementById('way-x').value;
+		var y = document.getElementById('way-y').value;
+		var f = new XMLHttpRequest();
+		f.open("GET", "/fsp?x="+x+"&y="+y);
+		f.send();
+	});
 
 	function wsConnect() {
 		ws = new WebSocket("ws://"+window.location.host+"/websocket?Id=" + Math.floor(Math.random() * 100));

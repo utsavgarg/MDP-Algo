@@ -37,9 +37,10 @@ class Robot:
         self.direction = direction
         self.center = np.asarray(start)
         self.head = np.asarray([start[0]-1, start[1]])
-        self.realMap = realMap
+        if realMap:
+            self.realMap = realMap
+            self.map = self.loadMap()
         self.movement = []
-        self.map = self.loadMap()
         self.markArea(start, 1)
 
     def markArea(self, center, value):
