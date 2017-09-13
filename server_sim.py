@@ -26,17 +26,14 @@ define("port", default=8888, help="run on the given port", type=int)
 
 clients = dict()
 
-
-'''
 currentMap = np.asarray([[1]*15]*20)
-'''
 
 
-def loadMap(name):
-        with open(os.path.join('Maps', name)) as f:
-            return np.genfromtxt(f, dtype=int, delimiter=1)
-currentMap = loadMap('map.txt')
-# '''
+# def loadMap(path):
+#     with open(path) as f:
+#         return np.genfromtxt(f, dtype=int, delimiter=1)
+# currentMap = loadMap('Maps/map.txt')
+
 area = 0
 
 
@@ -202,7 +199,7 @@ def startFastestPath(waypoint):
     global fsp
     global t_s
     waypoint = map(int, waypoint)
-    fsp = FastestPath(currentMap, START, GOAL, NORTH, None)
+    fsp = FastestPath(currentMap, START, GOAL, NORTH, waypoint)
     t_s = time.time()
     print 'Fastest Path Started !'
     t3 = FuncThread(fastestPath, fsp, GOAL, area, waypoint)

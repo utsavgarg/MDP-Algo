@@ -3,14 +3,17 @@
 	* StopHandler doesn't work
 	* WebSocket doesn't respond/closes after one exploration run
 	* No way to kill the program
-
-* fastest-path algo left
+	* Map dissapears after fastest path run
 
 * Real robot program left
 
 * RPi server left
 
 * Exploration.py
+	* Test and fix bugs (if any)
+	* Think of any edge cases
+
+* FastestPath.py
 	* Test and fix bugs (if any)
 	* Think of any edge cases
 

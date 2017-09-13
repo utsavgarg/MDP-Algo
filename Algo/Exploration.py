@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Implementation of exploration algorithm for maze solving robot
-
 """
 import numpy as np
 import time
