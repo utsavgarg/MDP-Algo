@@ -1,4 +1,4 @@
-*server_sim.js
+*server_sim.py
 	* ResetHandler doesn't work
 	* StopHandler doesn't work
 	* WebSocket doesn't respond/closes after one exploration run
