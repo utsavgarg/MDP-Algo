@@ -58,12 +58,14 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 			for(var i=0; i<roboPath.length; i++){
 				pt = roboPath[i].split(', ');
 				pt = [parseInt(pt[0]), parseInt(pt[1])];
-				context.beginPath();
-				context.fillStyle = getStyle(6);
-				context.rect(30 * pt[1], 30 * pt[0], 30, 30);
-				context.fill();
-				context.stroke();
-				context.closePath();
+				if (map[pt[0]][pt[1]] != 7){
+					context.beginPath();
+					context.fillStyle = getStyle(6);
+					context.rect(30 * pt[1], 30 * pt[0], 30, 30);
+					context.fill();
+					context.stroke();
+					context.closePath();
+				}
 			}
 		}
 
