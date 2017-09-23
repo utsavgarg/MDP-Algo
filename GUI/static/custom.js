@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	const ROWS = 20, COLUMNS = 15;
 	var roboPath = [];
 
+
 	// Initializing arena to be unexplored
 	var map = [];
 	for (var i = 0; i < ROWS; i++){
@@ -36,7 +37,15 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    }
 	}
 
-	function draw(map, center=null, head=null) {
+	function draw(map, center=null, head=null, area=null, time=null) {
+
+		if (area){
+    		document.getElementById('area').innerHTML = area+' %';
+    	}
+    	if (time){
+    		document.getElementById('timer').innerHTML = time+' s';
+    	}
+
         context.save();
         context.strokeStyle = "#252a33";
         context.lineWidth = 3;
@@ -87,28 +96,20 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
         context.restore();
     }
 
-    function log(area, time, msg){
-    	// To fill the timer, area explored and log messages
-    	var movementMap = {};
-    	movementMap['A'] = "Turn Left";
-    	movementMap['D'] = "Turn Right";
-    	movementMap['W'] = "Move Forward";
-    	if (area){
-    		document.getElementById('area').innerHTML = area+' %';
-    	}
-    	if (time){
-    		document.getElementById('timer').innerHTML = time+' s';
-    		
-    	}
-    	if (msg){
-    		msg = msg.split(', ');
-    		var temp = "";
-    		for (var i = 0; i < msg.length; i++) {;
-    			temp = temp + movementMap[msg[i][1]] + "<br>";
-    		}
-    		document.getElementById('logs-content').innerHTML = temp;
-    	}
+    (function () {
+    var old = console.log;
+    var logger = document.getElementById('logs-content');
+    console.log = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] == 'object') {
+            logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(arguments[i], undefined, 2) : arguments[i]) + '<br />';
+        } else {
+            logger.innerHTML += '<p>' + arguments[i] + '</p>';
+        }
+        logger.innerHTML += '<small>'+JSON.stringify(new Date())+'</small><br/><br/><hr/>';
+      }
     }
+	})();
 
     document.getElementById('mapName').addEventListener('click', function(e){
 		document.getElementById('mapname').style.display = 'block';
@@ -128,22 +129,6 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		r.open("GET", "/reset");
 		r.send();
 	});
-
-	function parseJson(map){
-		// Parsing string map to JavaScript array
-		var parsedMap = [];
-		map = map.slice(1, -1); // Removing extra brackets
-		var tempCnt = 1; // For removing extra spaces
-		for (i = 0; i < 20; i++){
-			var row = map.slice(i*30+tempCnt, i*30+tempCnt + 30 - 1);
-			tempCnt += 3;
-			parsedMap.push([]);
-			for (j = 0; j < 30; j+=2){
-				parsedMap[i].push(parseInt(row[j]));
-			}
-		}
-		return parsedMap;
-	}
 
 	document.getElementById('waypoint').addEventListener('click', function(e){
 		document.getElementById('way-point').style.display = 'block';
@@ -179,15 +164,21 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    };
 	    this.ws.onmessage = function(evt){
 	    	var data = JSON.parse(evt.data);
-	    	var map = JSON.parse(data.map);
-	    	var center = JSON.parse(data.center);
-	    	var head = JSON.parse(data.head);
-	    	var area = data.area;
-	    	var time = data.time;
-	    	var msg = data.msg;
-	    	roboPath.push(center);
-	    	draw(map, center, head);
-	    	log(area, time, msg);
+	    	if (data.hasOwnProperty('log')){
+	    		var msg = data.log;
+	    		console.log(msg);
+	    		//log(msg)
+	    	}
+	    	else{
+	    		var map = JSON.parse(data.map);
+		    	var center = JSON.parse(data.center);
+		    	var head = JSON.parse(data.head);
+		    	var area = data.area;
+		    	var time = data.time;
+		    	var msg = data.msg;
+		    	roboPath.push(center);
+		    	draw(map, center, head, area, time);
+	    	}
 	    };
 	    this.ws.onerror = function(evt){
 	    	console.log('WebSocket Error: ' + error);

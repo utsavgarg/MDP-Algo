@@ -122,7 +122,7 @@ class ResetHandler(web.RequestHandler):
         global exp
         exp = Exploration(map_name, 5)
         update(np.zeros([20, 15]), exp.exploredArea, exp.robot.center, exp.robot.head,
-               START, GOAL, 0, '')
+               START, GOAL, 0)
 
 
 class FSPHandler(web.RequestHandler):
@@ -158,7 +158,6 @@ def startExploration(step, limit, coverage):
     global t_s
     exp = Exploration(map_name, 5)
     t_s = time.time()
-    print 'Exploration Started !'
     t2 = FuncThread(exploration, exp, step, limit, coverage)
     t2.start()
     # t2.join()
@@ -175,7 +174,8 @@ def exploration(exp, step, limit, coverage):
     limit = map(int, str(limit).strip().split(':'))
     time_limit = limit[0]*60*60 + limit[1]*60
     elapsedTime = 0
-    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0, '')
+    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0)
+    logger('Exploration Started !')
     current = exp.moveStep()
     currentMap = exp.currentMap
     area = exp.exploredArea
@@ -183,19 +183,19 @@ def exploration(exp, step, limit, coverage):
     while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
-               elapsedTime, exp.robot.movement)
+               elapsedTime)
         current = exp.moveStep()
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
         time.sleep(float(step))
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
-           elapsedTime, exp.robot.movement)
-    print 'Exploration Done !'
-    print exp.robot.descriptor_1()
-    print exp.robot.descriptor_2()
+           elapsedTime)
+    logger('Exploration Done !')
+    logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
+    logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
     fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction, None)
-    print 'Fastest Path Started !'
+    logger('Fastest Path Started !')
     fastestPath(fsp, START, exp.exploredArea, None)
 
 
@@ -207,7 +207,7 @@ def startFastestPath(waypoint):
     waypoint = map(int, waypoint)
     fsp = FastestPath(currentMap, START, GOAL, NORTH, waypoint)
     t_s = time.time()
-    print 'Fastest Path Started !'
+    logger('Fastest Path Started !')
     t3 = FuncThread(fastestPath, fsp, GOAL, area, waypoint)
     t3.start()
     # t3.join() this causes the thread to close after exploration and websocket closes
@@ -221,17 +221,17 @@ def markMap(curMap, waypoint):
 
 def fastestPath(fsp, goal, area, waypoint):
     fsp.getFastestPath()
-    print fsp.path
+    logger(json.dumps(fsp.path))
     while (fsp.robot.center.tolist() != goal.tolist()):
         fsp.moveStep()
         elapsedTime = round(time.time()-t_s, 2)
         update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
-               START, GOAL, elapsedTime, fsp.robot.movement)
+               START, GOAL, elapsedTime)
         time.sleep(0.1)
-    print 'Fastest Path Done !'
+    logger('Fastest Path Done !')
 
 
-def update(current_map, exploredArea, center, head, start, goal, elapsedTime, log):
+def update(current_map, exploredArea, center, head, start, goal, elapsedTime):
     """To send messages to update the front-end
 
     Args:
@@ -242,7 +242,6 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime, lo
         start (list): Location of the starting point for the robot
         goal (list): Location of the finishing point for the robot
         elapsedTime (float): The time that has elapsed since exploration started
-        log (string): Log of robot movements
     """
     for key in clients:
         message = dict()
@@ -254,8 +253,13 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime, lo
         message['center'] = json.dumps(center.astype(int).tolist())
         message['head'] = json.dumps(head.astype(int).tolist())
         message['time'] = '%.2f' % (elapsedTime)
-        message['msg'] = str(log)[1:-1]
         clients[key]['object'].write_message(json.dumps(message))
+
+
+def logger(message):
+    for key in clients:
+        log = {'log': message}
+        clients[key]['object'].write_message(json.dumps(log))
 
 
 settings = dict(

@@ -7,6 +7,14 @@ html,body{
     font-family: 'ProximaNova-Regular', sans-serif;
 }
 
+br {
+  margin-top: 20px;
+}
+
+small {
+  font-size: x-small;
+}
+
 #parent {
     margin-left: 25%;
 }
@@ -47,12 +55,15 @@ html,body{
     width: 20%;
     background-color: #1a1e24;
     overflow-y: auto;
+    overflow-x: w
     color: white;
 }
 
 #logs-content {
     padding: 0 10% 0 10%;
     color: white;
+    max-width: 100%;
+    word-break: break-all;
 }
 
 #arena {

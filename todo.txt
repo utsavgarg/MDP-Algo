@@ -15,3 +15,6 @@
 
 * Simulator.py
 	* Test and fix bugs (if any)
+
+* custom.js
+	* does not print exploration started or fastest path started
