@@ -67,6 +67,7 @@ class FastestPath:
         self.waypoint = waypoint
         self.index = 1
         self.path = []
+        print direction, '*'*50
         if sim:
             from Simulator import Robot
             self.robot = Robot(self.exploredMap, direction, start, None)
@@ -225,6 +226,7 @@ class FastestPath:
         movement = []
         if (self.robot.center.tolist() != self.path[self.index]):
             diff = self.robot.center - np.asarray(self.path[self.index])
+            print diff, self.robot.direction
             if (diff[0] == -1 and diff[1] == 0):  # Going south
                 if self.robot.direction == NORTH:
                     movement.extend((RIGHT, RIGHT, FORWARD))

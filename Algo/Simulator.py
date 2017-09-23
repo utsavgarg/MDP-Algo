@@ -36,7 +36,7 @@ class Robot:
         self.exploredMap = exploredMap
         self.direction = direction
         self.center = np.asarray(start)
-        self.head = np.asarray([start[0]-1, start[1]])
+        self.setHead()
         if realMap:
             self.realMap = realMap
             self.map = self.loadMap()
@@ -52,6 +52,16 @@ class Robot:
             value (int): The value to be filled
         """
         self.exploredMap[center[0]-1:center[0]+2, center[1]-1:center[1]+2] = value
+
+    def setHead(self):
+        if (self.direction == NORTH):
+            self.head = self.center + [-1, 0]
+        elif (self.direction == EAST):
+            self.head = self.center + [0, 1]
+        elif (self.direction == SOUTH):
+            self.head = self.center + [1, 0]
+        else:
+            self.head = self.center + [0, -1]
 
     def loadMap(self):
         """To load the real map file and store it as a Numpy array
@@ -170,47 +180,39 @@ class Robot:
         if self.direction == NORTH:
             if movement == RIGHT:
                 self.direction = EAST
-                self.head = self.head + [1, 1]
             elif movement == LEFT:
                 self.direction = WEST
-                self.head = self.head + [1, -1]
             else:
-                self.head = self.head + [-1, 0]
                 self.center = self.center + [-1, 0]
                 self.markArea(self.center, 1)
+            self.setHead()
         elif self.direction == EAST:
             if movement == RIGHT:
                 self.direction = SOUTH
-                self.head = self.head + [1, -1]
             elif movement == LEFT:
                 self.direction = NORTH
-                self.head = self.head + [-1, -1]
             else:
-                self.head = self.head + [0, 1]
                 self.center = self.center + [0, 1]
                 self.markArea(self.center, 1)
+            self.setHead()
         elif self.direction == SOUTH:
             if movement == RIGHT:
                 self.direction = WEST
-                self.head = self.head + [-1, -1]
             elif movement == LEFT:
                 self.direction = EAST
-                self.head = self.head + [-1, 1]
             else:
-                self.head = self.head + [1, 0]
                 self.center = self.center + [1, 0]
                 self.markArea(self.center, 1)
+            self.setHead()
         else:
             if movement == RIGHT:
                 self.direction = NORTH
-                self.head = self.head + [-1, 1]
             elif movement == LEFT:
                 self.direction = SOUTH
-                self.head = self.head + [1, 1]
             else:
-                self.head = self.head + [0, -1]
                 self.center = self.center + [0, -1]
                 self.markArea(self.center, 1)
+            self.setHead()
 
     def descriptor_1(self):
         descriptor = np.zeros([20, 15]).astype(int)

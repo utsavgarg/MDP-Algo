@@ -254,6 +254,7 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime, lo
         message['map'] = json.dumps(tempMap.astype(int).tolist())
         message['center'] = json.dumps(center.astype(int).tolist())
         message['head'] = json.dumps(head.astype(int).tolist())
+        print message['center'], message['head']
         message['time'] = '%.2f' % (elapsedTime)
         message['msg'] = str(log)[1:-1]
         clients[key]['object'].write_message(json.dumps(message))
