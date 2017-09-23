@@ -192,7 +192,8 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    };
 	    this.ws.onmessage = function(evt){
 	    	var data = JSON.parse(evt.data);
-	    	var map = parseJson(JSON.parse(data.map));
+	    	//var map = parseJson(JSON.parse(data.map));
+	    	var map = JSON.parse(data.map);
 	    	var center = data.center;
 	    	var head = data.head;
 	    	var area = data.area;
