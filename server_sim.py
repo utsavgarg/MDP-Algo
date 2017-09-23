@@ -26,13 +26,8 @@ define("port", default=8888, help="run on the given port", type=int)
 
 clients = dict()
 
-currentMap = np.asarray([[1]*15]*20)
-
-
-# def loadMap(path):
-#     with open(path) as f:
-#         return np.genfromtxt(f, dtype=int, delimiter=1)
-# currentMap = loadMap('Maps/map.txt')
+currentMap = np.ones([20, 15])
+map_name = 'map.txt'
 
 area = 0
 
@@ -83,6 +78,7 @@ class WebSocketHandler(websocket.WebSocketHandler):
         self.id = self.get_argument("Id")
         self.stream.set_nodelay(True)
         clients[self.id] = {"id": self.id, "object": self}
+        print("WebSocket opened")
 
     def on_message(self, message):
         """Displays any message received
@@ -90,12 +86,14 @@ class WebSocketHandler(websocket.WebSocketHandler):
         Args:
             message (string): Message received from front-end
         """
-        print ("Client " + str(self.id) + " received a message : " + str(message))
+        print("Client " + str(self.id) + " received a message : " + str(message))
 
     def on_close(self):
         """Run when the web socket is closed
         """
         print("WebSocket closed")
+        if self.id in clients:
+            del clients[self.id]
 
 
 class StartHandler(web.RequestHandler):
@@ -106,7 +104,10 @@ class StartHandler(web.RequestHandler):
     @web.asynchronous
     def get(self):
         self.write("Starting...")
-        startExploration()
+        self.step = self.get_argument("step")
+        self.limit = self.get_argument("limit")
+        self.coverage = self.get_argument("coverage")
+        startExploration(self.step, self.limit, self.coverage)
         self.flush()
 
 
@@ -119,8 +120,8 @@ class ResetHandler(web.RequestHandler):
     def get(self):
         self.write("Reset...")
         global exp
-        exp = Exploration('map.txt', 5)
-        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
+        exp = Exploration(map_name, 5)
+        update(np.zeros([20, 15]), exp.exploredArea, exp.robot.center, exp.robot.head,
                START, GOAL, 0, '')
 
 
@@ -150,20 +151,32 @@ class FSPHandler(web.RequestHandler):
         self.flush()
 
 
-def startExploration():
+class LoadMapHandler(web.RequestHandler):
+
+    """Handles the start of fastest path for the maze
+    """
+
+    @web.asynchronous
+    def get(self):
+        global map_name
+        self.name = self.get_argument("name")
+        map_name = self.name
+
+
+def startExploration(step, limit, coverage):
     """To start the exploration of the maze
     """
     global exp
     global t_s
-    exp = Exploration('map.txt', 5)
+    exp = Exploration(map_name, 5)
     t_s = time.time()
     print 'Exploration Started !'
-    t2 = FuncThread(exploration, exp)
+    t2 = FuncThread(exploration, exp, step, limit, coverage)
     t2.start()
-    t2.join()
+    # t2.join()
 
 
-def exploration(exp):
+def exploration(exp, step, limit, coverage):
     """To explore the map and update the front-end after each move
 
     Args:
@@ -171,12 +184,16 @@ def exploration(exp):
     """
     global currentMap
     global area
+    limit = map(int, str(limit).strip().split(':'))
+    time_limit = limit[0]*60*60 + limit[1]*60
+    print time_limit, int(coverage), float(step)
+    elapsedTime = 0
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0, '')
     current = exp.moveStep()
     currentMap = exp.currentMap
     area = exp.exploredArea
     steps = 0
-    while (not current and steps < 150):
+    while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
                elapsedTime, exp.robot.movement)
@@ -184,10 +201,12 @@ def exploration(exp):
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
-        time.sleep(0.1)
+        time.sleep(float(step))
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
            elapsedTime, exp.robot.movement)
     print 'Exploration Done !'
+    print exp.robot.descriptor_1()
+    print exp.robot.descriptor_2()
     fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction, None)
     print 'Fastest Path Started !'
     fastestPath(fsp, START, exp.exploredArea, None)
@@ -204,7 +223,7 @@ def startFastestPath(waypoint):
     print 'Fastest Path Started !'
     t3 = FuncThread(fastestPath, fsp, GOAL, area, waypoint)
     t3.start()
-    t3.join()
+    # t3.join() this causes the thread to close after exploration and websocket closes
 
 
 def markMap(curMap, waypoint):
@@ -240,14 +259,14 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime, lo
     """
     for key in clients:
         message = dict()
-        message['area'] = exploredArea
+        message['area'] = '%.2f' % (exploredArea)
         tempMap = current_map.copy()
         tempMap[start[0]-1: start[0]+2, start[1]-1: start[1]+2] = 3
         tempMap[goal[0]-1: goal[0]+2, goal[1]-1: goal[1]+2] = 4
         message['map'] = json.dumps(str(tempMap))
         message['center'] = str(center.tolist())[1:-1]
         message['head'] = str(head.tolist())[1:-1]
-        message['time'] = elapsedTime
+        message['time'] = '%.2f' % (elapsedTime)
         message['msg'] = str(log)[1:-1]
         clients[key]['object'].write_message(json.dumps(message))
 
@@ -264,6 +283,7 @@ app = web.Application([
     (r'/reset', ResetHandler),
     (r'/stop', StopHandler),
     (r'/fsp', FSPHandler),
+    (r'/lm', LoadMapHandler),
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 

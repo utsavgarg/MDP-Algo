@@ -44,7 +44,7 @@ class Exploration:
     def getExploredArea(self):
         """Updates the total number of cells explored at the current state
         """
-        self.exploredArea = np.sum(self.currentMap != 0)
+        self.exploredArea = (np.sum(self.currentMap != 0)/300.0)*100
 
     def nextMove(self):
         """Decides which direction is free and commands the robot the next action

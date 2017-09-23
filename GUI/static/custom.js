@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
     	movementMap['D'] = "Turn Right";
     	movementMap['W'] = "Move Forward";
     	if (area){
-    		document.getElementById('area').innerHTML = area+'/300';
+    		document.getElementById('area').innerHTML = area+' %';
     	}
     	if (time){
     		document.getElementById('timer').innerHTML = time+' s';
@@ -115,10 +115,15 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
     	}
     }
 
+    document.getElementById('mapName').addEventListener('click', function(e){
+		document.getElementById('mapname').style.display = 'block';
+	});
 
-	document.getElementById('start').addEventListener('click', function(e){
+	document.getElementById('loadMap').addEventListener('click', function(e){
+		document.getElementById('mapname').style.display = 'none';
+		var name = document.getElementById('map-name').value;
 		var r = new XMLHttpRequest();
-		r.open("GET", "/start");
+		r.open("GET", "/lm?name="+name);
 		r.send();
 	});
 
@@ -134,6 +139,8 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		r.open("GET", "/stop");
 		r.send();
 	});
+
+
 
 	function parseJson(map){
 		// Parsing string map to JavaScript array
@@ -159,17 +166,31 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		document.getElementById('way-point').style.display = 'none';
 		var x = document.getElementById('way-x').value;
 		var y = document.getElementById('way-y').value;
-		var f = new XMLHttpRequest();
-		f.open("GET", "/fsp?x="+x+"&y="+y);
-		f.send();
+		var r = new XMLHttpRequest();
+		r.open("GET", "/fsp?x="+x+"&y="+y);
+		r.send();
+	});
+
+	document.getElementById('start').addEventListener('click', function(e){
+		document.getElementById('explore').style.display = 'block';
+	});
+
+	document.getElementById('exp_start').addEventListener('click', function(e){
+		document.getElementById('explore').style.display = 'none';
+		var step = document.getElementById('time_step').value;
+		var limit = document.getElementById('time').value;
+		var coverage = document.getElementById('percentage').value;
+		var r = new XMLHttpRequest();
+		r.open("GET", "/start?step="+step+"&limit="+limit+"&coverage="+coverage);
+		r.send();
 	});
 
 	function wsConnect() {
-		ws = new WebSocket("ws://"+window.location.host+"/websocket?Id=" + Math.floor(Math.random() * 100));
-	    ws.onopen = function() {
+		this.ws = new WebSocket("ws://"+window.location.host+"/websocket?Id=" + Math.floor(Math.random() * 100));
+	    this.ws.onopen = function() {
 	        ws.send("Initializing connection");
 	    };
-	    ws.onmessage = function (evt) {
+	    this.ws.onmessage = function(evt){
 	    	var data = JSON.parse(evt.data);
 	    	var map = parseJson(JSON.parse(data.map));
 	    	var center = data.center;
@@ -181,6 +202,13 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    	draw(map, center, head);
 	    	log(area, time, msg);
 	    };
+	    this.ws.onerror = function(evt){
+	    	console.log('WebSocket Error: ' + error);
+	    }
+	    this.ws.onclose = function(evt){
+	    	setTimeout(wsConnect, 1000);
+	    	console.log(evt);
+	    }
 	}
 
 	draw(map);

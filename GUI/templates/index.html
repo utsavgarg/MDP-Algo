@@ -10,7 +10,31 @@
 		<div id='sidebar'>
 			<div id="sidebar-heading" class="headings"><h3>MDP GROUP 26</h3></div>
 			<div id=sidebar-content>
+				<button id="mapName">Load Map</button>
+				<div id="mapname" style="display: none">
+					<p class="headings" style="text-align: left;">ENTER MAP NAME:</p>
+					<form>
+					  <p class="headings" style="text-align: left;">Name</p>
+					  <input type="text" name="name" value='map.txt' id='map-name'>
+					  <br><br>
+					  <input id="loadMap" type="submit" value="Submit">
+					</form> 
+				</div>
 				<button id="start">Exploration</button>
+				<div id="explore" style="display: none;">
+					<form>
+					  <p class="headings" style="text-align: left;">TIME STEP</p>
+					  <input type="text" name="t_s" value='0.1' id='time_step'>
+					  <br>
+					  <p class="headings" style="text-align: left;">TIME LIMIT</p>
+					  <input type="time" name="time_limit" value="00:10" id='time'>
+					  <br>
+					  <p class="headings" style="text-align: left;">COVERAGE LIMIT</p>
+					  <input type="number" name="cover" value='100' id='percentage' min='0' max='100'>
+					  <br><br>
+					  <input id="exp_start" type="submit" value="Submit">
+					</form> 
+				</div>
 				<button id='waypoint'>Fastest Path</button>
 				<div id="way-point" style="display: none">
 					<p class="headings" style="text-align: left;">ENTER WAYPOINT:</p>

@@ -105,6 +105,28 @@ input[type="text"] {
 	font-weight: bold;
 }
 
+input[type="number"] {
+  background-color: #fff;
+  border-radius: 2px;
+  padding: 0px 0px 0px 10px;
+  width: 50%;
+  height: 30px;
+  margin: 0px;
+  border: none;
+  font-weight: bold;
+}
+
+input[type="time"] {
+  background-color: #fff;
+  border-radius: 2px;
+  padding: 0px 0px 0px 10px;
+  width: 50%;
+  height: 30px;
+  margin: 0px;
+  border: none;
+  font-weight: bold;
+}
+
 input[type="submit"]{
 	background-color: #428BCA;
 	border-radius: 5px;

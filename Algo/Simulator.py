@@ -211,3 +211,25 @@ class Robot:
                 self.head = self.head + [0, -1]
                 self.center = self.center + [0, -1]
                 self.markArea(self.center, 1)
+
+    def descriptor_1(self):
+        descriptor = np.zeros([20, 15]).astype(int)
+        descriptor[self.exploredMap[::-1, :] != 0] = 1
+        bits = '11'
+        for row in descriptor:
+            bits += ''.join(map(str, row.tolist()))
+        bits += '11'
+        hex_str = ['%X' % int(bits[i:i+4], 2) for i in range(0, len(bits)-3, 4)]
+        return ''.join(hex_str)
+
+    def descriptor_2(self):
+        bits = ''
+        for row in self.exploredMap[::-1, :]:
+            for bit in row:
+                if bit == 2:
+                    bits += '1'
+                elif bit != 0:
+                    bits += '0'
+        bits += '0'*(4 - len(bits) % 4)
+        hex_str = ['%X' % int(bits[i:i+4], 2) for i in range(0, len(bits)-3, 4)]
+        return ''.join(hex_str)
