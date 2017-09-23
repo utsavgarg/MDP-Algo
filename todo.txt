@@ -8,6 +8,7 @@
 * Exploration.py
 	* Test and fix bugs (if any)
 	* Think of any edge cases
+	* sample3, sample5 and sample_wk10 not fully explored
 
 * FastestPath.py
 	* Test and fix bugs (if any)
