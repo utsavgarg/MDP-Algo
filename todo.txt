@@ -1,9 +1,5 @@
 *server_sim.py
-	* ResetHandler doesn't work
-	* StopHandler doesn't work
-	* WebSocket doesn't respond/closes after one exploration run
 	* No way to kill the program
-	* Map dissapears after fastest path run
 
 * Real robot program left
 

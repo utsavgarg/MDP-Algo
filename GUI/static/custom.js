@@ -129,14 +129,6 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		r.send();
 	});
 
-	document.getElementById('stop').addEventListener('click', function(e){
-		var r = new XMLHttpRequest();
-		r.open("GET", "/stop");
-		r.send();
-	});
-
-
-
 	function parseJson(map){
 		// Parsing string map to JavaScript array
 		var parsedMap = [];

@@ -125,18 +125,6 @@ class ResetHandler(web.RequestHandler):
                START, GOAL, 0, '')
 
 
-class StopHandler(web.RequestHandler):
-
-    """To Stop the robot exploration in the middle
-    """
-
-    @web.asynchronous
-    def get(self):
-        global started
-        started = False
-        self.flush()
-
-
 class FSPHandler(web.RequestHandler):
 
     """Handles the start of fastest path for the maze
@@ -281,7 +269,6 @@ app = web.Application([
     (r'/websocket', WebSocketHandler),
     (r'/start', StartHandler),
     (r'/reset', ResetHandler),
-    (r'/stop', StopHandler),
     (r'/fsp', FSPHandler),
     (r'/lm', LoadMapHandler),
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
