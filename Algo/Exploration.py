@@ -165,9 +165,7 @@ class Exploration:
         while(time.time() <= endTime):
             if (self.moveStep()):
                 print "Exploration completed !"
-                print self.currentMap
                 return
 
         print "Time over !"
-        print self.currentMap
         return

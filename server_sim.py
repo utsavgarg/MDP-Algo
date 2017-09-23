@@ -174,7 +174,6 @@ def exploration(exp, step, limit, coverage):
     global area
     limit = map(int, str(limit).strip().split(':'))
     time_limit = limit[0]*60*60 + limit[1]*60
-    print time_limit, int(coverage), float(step)
     elapsedTime = 0
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0, '')
     current = exp.moveStep()
@@ -254,7 +253,6 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime, lo
         message['map'] = json.dumps(tempMap.astype(int).tolist())
         message['center'] = json.dumps(center.astype(int).tolist())
         message['head'] = json.dumps(head.astype(int).tolist())
-        print message['center'], message['head']
         message['time'] = '%.2f' % (elapsedTime)
         message['msg'] = str(log)[1:-1]
         clients[key]['object'].write_message(json.dumps(message))
