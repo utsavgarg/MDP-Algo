@@ -66,7 +66,7 @@ class Connector:
         #     print("         socket_type: ", socket_type)
         #     print("         proto: ", proto)
         #     break
-        host = '192.168.12.12'
+        host = '192.168.26.1'
         port = 8008
         try:
             self.socket.connect((host, port))
