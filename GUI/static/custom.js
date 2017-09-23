@@ -56,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 		// add path
 		if (roboPath){
 			for(var i=0; i<roboPath.length; i++){
-				pt = roboPath[i].split(', ');
-				pt = [parseInt(pt[0]), parseInt(pt[1])];
+				pt = roboPath[i];
 				if (map[pt[0]][pt[1]] != 7){
 					context.beginPath();
 					context.fillStyle = getStyle(6);
@@ -71,10 +70,6 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 
 		// marking robot
 		if (center && head){
-			center = center.split(', ');
-			head = head.split(', ');
-			center = [parseInt(center[0]), parseInt(center[1])];
-			head = [parseInt(head[0]), parseInt(head[1])];
 			context.beginPath();
 			context.fillStyle = getStyle(5);
 			context.moveTo(30*center[1] + 55, 30*center[0] + 15);
@@ -192,10 +187,9 @@ document.addEventListener('DOMContentLoaded', function initialize(e) {
 	    };
 	    this.ws.onmessage = function(evt){
 	    	var data = JSON.parse(evt.data);
-	    	//var map = parseJson(JSON.parse(data.map));
 	    	var map = JSON.parse(data.map);
-	    	var center = data.center;
-	    	var head = data.head;
+	    	var center = JSON.parse(data.center);
+	    	var head = JSON.parse(data.head);
 	    	var area = data.area;
 	    	var time = data.time;
 	    	var msg = data.msg;
