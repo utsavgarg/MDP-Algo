@@ -172,7 +172,7 @@ def exploration(exp, step, limit, coverage):
     global currentMap
     global area
     limit = map(int, str(limit).strip().split(':'))
-    time_limit = limit[0]*60*60 + limit[1]*60
+    time_limit = limit[0]*60*60 + limit[1]*60 + limit[2]
     elapsedTime = 0
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0)
     logger('Exploration Started !')
@@ -180,6 +180,7 @@ def exploration(exp, step, limit, coverage):
     currentMap = exp.currentMap
     area = exp.exploredArea
     steps = 0
+    numCycle = 1
     while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
@@ -188,6 +189,18 @@ def exploration(exp, step, limit, coverage):
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
+        if (np.array_equal(exp.robot.center, START)):
+            numCycle += 1
+            if (numCycle > 1 and steps > 4):
+                neighbour = exp.getExploredNeighbour()
+                if (neighbour):
+                    neighbour = np.asarray(neighbour)
+                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                      exp.robot.direction, None)
+                    fastestPath(fsp, neighbour, exp.exploredArea, None)
+                    exp.robot.center = neighbour
+                else:
+                    break
         time.sleep(float(step))
     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
            elapsedTime)

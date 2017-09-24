@@ -40,6 +40,32 @@ class Exploration:
         self.currentMap = np.asarray([[0]*15]*20)
         self.robot = Robot(self.currentMap, NORTH, START, realMap)
         self.sensors = self.robot.getSensors()
+        self.exploredNeighbours = dict()
+
+    def __validInds(self, inds):
+        """To check if the passed indices are valid or not
+        To be valid the following conditions should be met:
+            * A 3x3 neighbourhood around the center should lie within the arena
+            * A 3x3 neighbourhood around the center should have no obstacle
+
+        Args:
+            inds (list of list): List of coordinates to be checked
+
+        Returns:
+            list of list: All indices that were valid
+        """
+        valid = []
+        for i in inds:
+            r, c = i
+            x, y = np.meshgrid([-1, 0, 1], [-1, 0, 1])
+            x, y = x+r, y+c
+            if (np.any(x < 0) or np.any(y < 0) or np.any(x >= MAX_ROWS) or np.any(y >= MAX_COLS)):
+                valid.append(False)
+            elif (np.any(self.currentMap[x[0, 0]:x[0, 2]+1, y[0, 0]:y[2, 0]+1] != 1)):
+                valid.append(False)
+            else:
+                valid.append(True)
+        return [tuple(inds[i]) for i in range(len(inds)) if valid[i]]
 
     def getExploredArea(self):
         """Updates the total number of cells explored at the current state
@@ -169,3 +195,21 @@ class Exploration:
 
         print "Time over !"
         return
+
+    def getExploredNeighbour(self):
+        locs = np.where(self.currentMap == 0)
+        locs = np.asarray(zip(locs[0], locs[1]))
+        cost = np.abs(locs[:, 0] - self.robot.center[0]) + np.abs(locs[:, 1] - self.robot.center[1])
+        cost = cost.tolist()
+        locs = locs.tolist()
+        while (cost):
+            position = np.argmin(cost)
+            coord = locs.pop(position)
+            cost.pop(position)
+            neighbours = np.asarray([[-2, 0], [2, 0], [0, -2], [0, 2]]) + coord
+            neighbours = self.__validInds(neighbours)
+            for neighbour in neighbours:
+                if (neighbour not in self.exploredNeighbours):
+                    self.exploredNeighbours[neighbour] = True
+                    return neighbour
+        return None
