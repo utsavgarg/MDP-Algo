@@ -179,6 +179,7 @@ def exploration(exp, step, limit, coverage):
     current = exp.moveStep()
     currentMap = exp.currentMap
     area = exp.exploredArea
+    visited = dict()
     steps = 0
     numCycle = 1
     while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
@@ -189,6 +190,21 @@ def exploration(exp, step, limit, coverage):
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
+        currentPos = tuple(exp.robot.center)
+        if (currentPos in visited):
+            visited[currentPos] += 1
+            if (visited[currentPos] > 2):
+                neighbour = exp.getExploredNeighbour()
+                if (neighbour):
+                    neighbour = np.asarray(neighbour)
+                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                      exp.robot.direction, None)
+                    fastestPath(fsp, neighbour, exp.exploredArea, None)
+                    exp.robot.center = neighbour
+                else:
+                    break
+        else:
+            visited[currentPos] = 1
         if (np.array_equal(exp.robot.center, START)):
             numCycle += 1
             if (numCycle > 1 and steps > 4):
