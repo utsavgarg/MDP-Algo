@@ -2,6 +2,8 @@ import socket
 import time
 import sys
 
+import string
+
 import json
 import numpy as np
 import os
