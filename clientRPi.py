@@ -29,18 +29,10 @@ class Test(threading.Thread):
                 self.client_socket.connect((self.ip, self.port))
  
         # Send data
-        def write(self, count = 0):
-                print "\nEnter text to send: "
-                msg = raw_input()
+        def write(self, msg):
                 while True:
-                        # time.sleep(1)
                         self.client_socket.send(msg)
-                        print "\nEnter text to send: "
-                        msg = raw_input()
-                       # msg ="HA90|"
-                        count += 1
-                print "quit write()"
- 
+                        
         # Receive data
         def receive(self):
                 while True:
@@ -48,8 +40,15 @@ class Test(threading.Thread):
                         if len(data) == 0:
                                 print "Quitting..."
                                 break
+                        #if data[0] == 'COMPUTE'
+                        #     final = self.compute(msg)
+                        #     self.write(final)
                         print "\nFrom RPI: %s " % data
                 print "Quit receive()"
+                
+        def compute(value):
+                #do computing here
+                #return value
        
         def keep_main(self):
                 while True:
