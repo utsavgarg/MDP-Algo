@@ -40,3 +40,5 @@ e.g.: FASTEST;4,7
 
 Element[0] is the command (PLOT, FASTEST, etc)
 Semicolon for splitting
+
+https://pastebin.com/VA9a0e0F
