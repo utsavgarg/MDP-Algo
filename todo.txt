@@ -19,3 +19,26 @@
 
 * custom.js
 	* does not print exploration started or fastest path started
+	
+	
+	
+What we need to send to RPi:
+Movement value: A D W
+e.g.:
+MOVEMENT;W
+MOVEMENT;WWWAWW
+
+PLOT;coordinates of obstacles
+e.g.:
+PLOT;4,5;5,5;6,5
+
+What we need to receive from RPi:
+START signal for exploration
+FASTEST signal for fastest path, with coordinate of waypoint
+e.g.: FASTEST;4,7
+
+
+Element[0] is the command (PLOT, FASTEST, etc)
+Semicolon for splitting
+
+https://pastebin.com/VA9a0e0F
