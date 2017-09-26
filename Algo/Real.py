@@ -24,7 +24,7 @@ class Robot:
         realMap (string): File name for map
     """
 
-    def __init__(self, exploredMap, direction, start, realMap):
+    def __init__(self, exploredMap, direction, start):
         """Constructor to initialise an instance of the Exploration class
 
         Args:
@@ -37,9 +37,6 @@ class Robot:
         self.direction = direction
         self.center = np.asarray(start)
         self.setHead()
-        if realMap:
-            self.realMap = realMap
-            self.map = self.loadMap()
         self.movement = []
         self.markArea(start, 1)
 
@@ -62,15 +59,6 @@ class Robot:
             self.head = self.center + [1, 0]
         else:
             self.head = self.center + [0, -1]
-
-    def loadMap(self):
-        """To load the real map file and store it as a Numpy array
-
-        Returns:
-            Numpy array: Real map
-        """
-        with open(os.path.join('Maps', self.realMap)) as f:
-            return np.genfromtxt(f, dtype=int, delimiter=1)
 
     def getValue(self, inds):
         """To get sensor values (from the real map for simulation) at the given indices
@@ -97,7 +85,7 @@ class Robot:
             vals = vals + [None]*(len(inds)-len(vals))
         return vals
 
-    def getSensors(self):
+    def getSensors(self, sensor_vals):
         """Generated indices to get values from sensors and gets the values using getValue() function.
            For this simulator it is assumed that the sensors can get values up a distance of 4 cells
 

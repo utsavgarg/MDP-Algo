@@ -69,7 +69,9 @@ class FastestPath:
         self.path = []
         if sim:
             from Simulator import Robot
-            self.robot = Robot(self.exploredMap, direction, start, None)
+        else:
+            from Real import Robot
+        self.robot = Robot(self.exploredMap, direction, start, None)
 
     def __getHeuristicCosts(self, goal):
         """Calculates the Manhattan distance between each cell and the goal cell

@@ -35,6 +35,8 @@ class Exploration:
         """
         if sim:
             from Simulator import Robot
+        else:
+            from Real import Robot
         self.timeLimit = timeLimit
         self.exploredArea = 0
         self.currentMap = np.asarray([[0]*15]*20)
@@ -167,13 +169,16 @@ class Exploration:
         inds = [[r, c-2], [r-1, c-2], [r+1, c-2]]
         return self.validMove(inds)
 
-    def moveStep(self):
+    def moveStep(self, sensor_vals=None):
         """Moves the robot one step for exploration
 
         Returns:
             bool: True is the map is fully explored
         """
-        self.robot.getSensors()
+        if (sensor_vals):
+            self.robot.getSensors(sensor_vals)
+        else:
+            self.robot.getSensors()
         self.nextMove()
         self.getExploredArea()
         if (self.exploredArea == 300):
