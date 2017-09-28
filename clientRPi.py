@@ -41,12 +41,17 @@ class Test(threading.Thread):
                         if len(data) == 0:
                                 print "Quitting..."
                                 break
+
                         splitData = data.split(";")
 
-                        if splitData == 'COMPUTE'
+                        if splitData[0] == 'COMPUTE'
                             sensorsValsFromRPi = splitData
                             sensorsValsFromRPi.pop(0) #Removing the first element from the array which is 'COMPUTE'
                             print "sensorsValsFromRPi = " + sensorsValsFromRPi
+
+                        
+                        
+
                         print "\nFrom RPI: %s " % data
 
                 print "Quit receive()"
