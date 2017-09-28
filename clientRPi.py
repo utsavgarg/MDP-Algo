@@ -42,15 +42,30 @@ class Test(threading.Thread):
                                 print "Quitting..."
                                 break
 
+
+                        # To be added: Function to receive START signal
+                        #if data = "START" ...
+
+
                         splitData = data.split(";")
 
-                        if splitData[0] == 'COMPUTE'
+                        if splitData[0] == 'COMPUTE':
                             sensorsValsFromRPi = splitData
-                            sensorsValsFromRPi.pop(0) #Removing the first element from the array which is 'COMPUTE'
-                            print "sensorsValsFromRPi = " + sensorsValsFromRPi
+                            sensorsValsFromRPi.pop(0) #Removing the first element from the array
+                            print "sensorsValsFromRPi = "
+                            print sensorsValsFromRPi
+                        elif splitData[0] == 'PLOT':
+                            obstacleCoordinatesFromRPi = splitData
+                            obstacleCoordinatesFromRPi.pop(0) #Removing the first element from the array
+                            print "obstacleCoordinatesFromRPi = " + obstacleCoordinatesFromRPi
+                        elif splitData[0] == 'FASTEST':
+                            #To be added: FASTEST signal indication
+                            waypointCoordinatesFromRPi = splitData
+                            waypointCoordinatesFromRPi.pop(0) #Removing the first element from the array
+                            print "waypointCoordinatesFromRPi = " + waypointCoordinatesFromRPi
 
-                        
-                        
+
+                        #Note: After popping, the instruction in splitData is popped as well (probably pointer issue)
 
                         print "\nFrom RPI: %s " % data
 
