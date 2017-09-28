@@ -37,18 +37,20 @@ class Test(threading.Thread):
         def receive(self):
                 while True:
                         data = self.client_socket.recv(1024)
+
                         if len(data) == 0:
                                 print "Quitting..."
                                 break
-                        #if data[0] == 'COMPUTE'
-                        #     final = self.compute(msg)
-                        #     self.write(final)
+                        splitData = data.split(";")
+
+                        if splitData == 'COMPUTE'
+                            sensorsValsFromRPi = splitData
+                            sensorsValsFromRPi.pop(0) #Removing the first element from the array which is 'COMPUTE'
+                            print "sensorsValsFromRPi = " + sensorsValsFromRPi
                         print "\nFrom RPI: %s " % data
+
                 print "Quit receive()"
                 
-        def compute(value):
-                #do computing here
-                #return value
        
         def keep_main(self):
                 while True:
@@ -199,6 +201,10 @@ def startExploration(step, limit, coverage):
     # t2.join()
 
 
+def getSensorsVals():
+    pass
+
+
 def exploration(exp, step, limit, coverage):
     """To explore the map and update the front-end after each move
 
@@ -223,9 +229,13 @@ def exploration(exp, step, limit, coverage):
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
                elapsedTime)
         exp.robot.movement = []
+
+
         sensor_vals = getSensorsVals()
         current = exp.moveStep(sensor_vals)
         exp.robot.movement
+
+
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
