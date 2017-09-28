@@ -256,7 +256,8 @@ def exploration(exp, step, limit, coverage):
         current = exp.moveStep(sensor_vals)
         
         msg = exp.robot.movement #Message to be send, need to be processed to "MOVEMENT;WWWAWWWD"
-
+        msg = "MOVEMENT;WWWAWWWD" #Dummy movement for testing purposes
+        
         currentMap = exp.currentMap
         area = exp.exploredArea
         steps += 1
