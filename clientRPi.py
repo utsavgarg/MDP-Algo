@@ -80,6 +80,7 @@ class Test(threading.Thread):
                         
 
 
+#Start of server_sim.py
 define("port", default=8888, help="run on the given port", type=int)
 
 clients = dict()
