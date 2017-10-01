@@ -111,6 +111,17 @@ class StartHandler(web.RequestHandler):
         self.flush()
 
 
+class RPiStartHandler(RPiStartSignal):
+    """Handles the start of exploration for the maze
+    """
+    def get(self):
+        self.write("Starting...")
+        self.step = self.get_argument("step")
+        self.limit = self.get_argument("limit")
+        self.coverage = self.get_argument("coverage")
+        startExploration(self.step, self.limit, self.coverage)
+
+
 class ResetHandler(web.RequestHandler):
 
     """Handles the reset of the current map
