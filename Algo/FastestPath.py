@@ -67,11 +67,13 @@ class FastestPath:
         self.waypoint = waypoint
         self.index = 1
         self.path = []
+        self.movement = []
         if sim:
             from Simulator import Robot
+            self.robot = Robot(self.exploredMap, direction, start, None)
         else:
             from Real import Robot
-        self.robot = Robot(self.exploredMap, direction, start, None)
+            self.robot = Robot(self.exploredMap, direction, start)
 
     def __getHeuristicCosts(self, goal):
         """Calculates the Manhattan distance between each cell and the goal cell
@@ -224,7 +226,7 @@ class FastestPath:
         """To take the fastest path, robot location and determine the next
         move for the robot to follow the path
         """
-        movement = []
+        movement = self.movement
         if (self.robot.center.tolist() != self.path[self.index]):
             diff = self.robot.center - np.asarray(self.path[self.index])
             if (diff[0] == -1 and diff[1] == 0):  # Going south

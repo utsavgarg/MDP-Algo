@@ -25,7 +25,7 @@ class Exploration:
         timeLimit (int): Maximum time allowed for exploration
     """
 
-    def __init__(self, realMap, timeLimit, sim=True):
+    def __init__(self, realMap=None, timeLimit=None, sim=True):
         """Constructor to initialise an instance of the Exploration class
 
         Args:
@@ -33,14 +33,15 @@ class Exploration:
             timeLimit (int): Maximum time allowed for exploration
             sim (bool, optional): To specify is the exploration mode is simulation or real
         """
-        if sim:
-            from Simulator import Robot
-        else:
-            from Real import Robot
         self.timeLimit = timeLimit
         self.exploredArea = 0
         self.currentMap = np.asarray([[0]*15]*20)
-        self.robot = Robot(self.currentMap, NORTH, START, realMap)
+        if sim:
+            from Simulator import Robot
+            self.robot = Robot(self.currentMap, NORTH, START, realMap)
+        else:
+            from Real import Robot
+            self.robot = Robot(self.currentMap, NORTH, START)
         self.sensors = self.robot.getSensors()
         self.exploredNeighbours = dict()
 
@@ -77,19 +78,27 @@ class Exploration:
     def nextMove(self):
         """Decides which direction is free and commands the robot the next action
         """
+        move = []
         if (self.checkFree([1, 2, 3, 0])):
             self.robot.moveBot(RIGHT)
+            move.append(RIGHT)
             if (self.checkFree([0, 1, 2, 3])):
                 self.robot.moveBot(FORWARD)
+                move.append(FORWARD)
         elif (self.checkFree([0, 1, 2, 3])):
             self.robot.moveBot(FORWARD)
+            move.append(FORWARD)
         elif (self.checkFree([3, 0, 1, 2])):
             self.robot.moveBot(LEFT)
+            move.append(LEFT)
             if (self.checkFree([0, 1, 2, 3])):
                 self.robot.moveBot(FORWARD)
+                move.append(FORWARD)
         else:
             self.robot.moveBot(RIGHT)
             self.robot.moveBot(RIGHT)
+            move.extend((RIGHT, RIGHT))
+        return move
 
     def checkFree(self, order):
         """Checks if a specific direction is free to move to
@@ -179,12 +188,12 @@ class Exploration:
             self.robot.getSensors(sensor_vals)
         else:
             self.robot.getSensors()
-        self.nextMove()
+        move = self.nextMove()
         self.getExploredArea()
         if (self.exploredArea == 300):
-            return True
+            return move, True
         else:
-            return False
+            return move, False
 
     def explore(self):
         """Runs the exploration till the map is fully explored of time runs out

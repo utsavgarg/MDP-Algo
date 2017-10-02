@@ -170,6 +170,47 @@ class Robot:
             self.getValue(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)),
                           sensor_vals[5], distanceLong, False)
 
+    def can_calibrate(self):
+        r, c = self.center
+        flag = False
+        if self.direction == NORTH:
+            for i in range(2, 7):
+                if ((c + i) < MAX_COLS):
+                    if (self.exploredMap[r-1, c+i] == 2 and self.exploredMap[r+1, c+i] == 2):
+                        flag = True
+                        break
+                else:
+                    flag = True
+                    break
+        elif self.direction == WEST:
+            for i in range(2, 7):
+                if ((r - i) > 0):
+                    if (self.exploredMap[r-i, c-1] == 2 and self.exploredMap[r-i, c+1] == 2):
+                        flag = True
+                        break
+                else:
+                    flag = True
+                    break
+        elif self.direction == EAST:
+            for i in range(2, 7):
+                if ((r + i) < MAX_ROWS):
+                    if (self.exploredMap[r+i, c-1] == 2 and self.exploredMap[r+i, c+1] == 2):
+                        flag = True
+                        break
+                else:
+                    flag = True
+                    break
+        else:
+            for i in range(2, 7):
+                if ((r - i) > 0):
+                    if (self.exploredMap[r-1, c-i] == 2 and self.exploredMap[r+1, c-i] == 2):
+                        flag = True
+                        break
+                else:
+                    flag = True
+                    break
+        return flag
+
     def moveBot(self, movement):
         """Simulates the bot movement based on current location, direction and received action
 
