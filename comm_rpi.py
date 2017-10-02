@@ -75,7 +75,7 @@ def logger(message):
 
 
 def output_formatter(msg, start, movement):
-    return msg+';'+';'.join(start)+';'+';'.join(movement)
+    return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
 
 
 class RPi(threading.Thread):
@@ -95,7 +95,7 @@ class RPi(threading.Thread):
                 current_pos = None
                 data = self.client_socket.recv(1024)
                 print ('Received %s from RPi' % (data))
-                split_data = data.split(";")
+                split_data = data.split("|")
                 if (split_data[0] == 'START'):
                     global exp, t_s
                     t_s = time.time()
