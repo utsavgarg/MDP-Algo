@@ -177,6 +177,10 @@ class RPi(threading.Thread):
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'):
+                    # need to receive:
+                    # starting coordinates
+                    # starting direction
+                    # movement
                     pass
 
     def keep_main(self):
