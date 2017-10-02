@@ -176,6 +176,8 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVE', current_pos, move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
+                elif (split_data[0] == 'MANUAL'):
+                    pass
 
     def keep_main(self):
         while True:
