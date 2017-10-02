@@ -252,6 +252,64 @@ class WebSocketHandler(websocket.WebSocketHandler):
             del clients[self.id]
 
 
+class StartHandler(web.RequestHandler):
+
+    """Handles the start of exploration for the maze
+    """
+
+    @web.asynchronous
+    def get(self):
+        self.write("Starting...")
+        self.step = self.get_argument("step")
+        self.limit = self.get_argument("limit")
+        self.coverage = self.get_argument("coverage")
+        global step
+        step = float(self.step)
+        startExploration(self.limit, self.coverage)
+        self.flush()
+
+
+class ResetHandler(web.RequestHandler):
+
+    """Handles the reset of the current map
+    """
+
+    @web.asynchronous
+    def get(self):
+        self.write("Reset...")
+        global exp
+        exp = Exploration(map_name, 5)
+        print exp.currentMap
+        update(np.zeros([20, 15]), exp.exploredArea, exp.robot.center, exp.robot.head,
+               START, GOAL, 0)
+
+
+class FSPHandler(web.RequestHandler):
+
+    """Handles the start of fastest path for the maze
+    """
+
+    @web.asynchronous
+    def get(self):
+        self.x = self.get_argument("x")
+        self.y = self.get_argument("y")
+        self.write("Starting...")
+        startFastestPath([self.x, self.y])
+        self.flush()
+
+
+class LoadMapHandler(web.RequestHandler):
+
+    """Handles the start of fastest path for the maze
+    """
+
+    @web.asynchronous
+    def get(self):
+        global map_name
+        self.name = self.get_argument("name")
+        map_name = self.name
+
+
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "GUI", "templates"),
     debug=True
