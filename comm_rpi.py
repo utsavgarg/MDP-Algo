@@ -18,12 +18,12 @@ define("port", default=8890, help="run on the given port", type=int)
 clients = dict()
 currentMap = np.ones([20, 15])
 area = 0
-exp = None
-fsp = None
+exp = ''
+fsp = ''
 visited = dict()
 steps = 0
 numCycle = 1
-global t_s
+t_s = 0
 
 
 def markMap(curMap, waypoint):
@@ -75,11 +75,18 @@ def logger(message):
 
 
 def output_formatter(msg, start, movement):
+    if not isinstance(start, list):
+        start = start.tolist()
+    if not isinstance(movement, list):
+        movement = movement.tolist()
+    start = map(str, start)
+    movement = map(str, movement)
     return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
 
 
 class RPi(threading.Thread):
     def __init__(self):
+        print "starting rpi communication"
         threading.Thread.__init__(self)
 
         self.ip = "192.168.26.1"  # Connecting to IP address of MDPGrp26
@@ -88,24 +95,25 @@ class RPi(threading.Thread):
         # Create a TCP/IP socket
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client_socket.connect((self.ip, self.port))
+        print "sent connection request"
 
         # Receive and send data to RPi data
-        def receive_send(self):
-            while True:
-                current_pos = None
-                data = self.client_socket.recv(1024)
+    def receive_send(self):
+        while True:
+            current_pos = None
+            data = self.client_socket.recv(1024)
+            if (data):
                 print ('Received %s from RPi' % (data))
                 split_data = data.split("|")
-                if (split_data[0] == 'START'):
-                    global exp, t_s
+                global exp, t_s, area, steps, numCycle, currentMap, exp, fsp
+                if (split_data[0] == 'EXPLORE'):
                     t_s = time.time()
-                    exp = Exploration()
+                    exp = Exploration(sim=False)
                     current_pos = exp.robot.center
                     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                            START, GOAL, 0)
                 elif (split_data[0] == 'COMPUTE'):
                     sensors = map(float, split_data[1:])
-                    global area, steps, numCycle, exp, fsp, currentMap
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
                     if (not current[1]):
@@ -123,7 +131,7 @@ class RPi(threading.Thread):
                                 if (neighbour):
                                     neighbour = np.asarray(neighbour)
                                     fsp = FastestPath(currentMap, exp.robot.center, neighbour,
-                                                      exp.robot.direction, None)
+                                                      exp.robot.direction, None, sim=False)
                                     fastestPath(fsp, neighbour, exp.exploredArea, None)
                                     move.extend(fsp.movement)
                                     exp.robot.center = neighbour
@@ -139,7 +147,7 @@ class RPi(threading.Thread):
                                         neighbour = np.asarray(neighbour)
                                         fsp = FastestPath(currentMap, exp.robot.center, neighbour,
                                                           exp.robot.direction, None)
-                                        fastestPath(fsp, neighbour, exp.exploredArea, None)
+                                        fastestPath(fsp, neighbour, exp.exploredArea, None, sim=False)
                                         move.extend(fsp.movement)
                                         exp.robot.center = neighbour
                                     else:
@@ -151,26 +159,27 @@ class RPi(threading.Thread):
                         logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
                         logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
                         fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
-                                          None)
+                                          None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
                         move.extend(fsp.movement)
-                    get_msg = output_formatter('MOVE', current_pos, move)
+                    get_msg = output_formatter('MOVEMENT', current_pos, move)
                     self.client_socket.send(get_msg)
+                    print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'FASTEST'):
-                    global fsp
                     waypoint = map(int, split_data[1:])
                     fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
-                                      waypoint)
+                                      waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, START, exp.exploredArea, None)
                     move = fsp.movement
                     get_msg = output_formatter('MOVE', current_pos, move)
                     self.client_socket.send(get_msg)
+                    print ('Sent %s to RPi' % (get_msg))
 
-        def keep_main(self):
-                while True:
-                        time.sleep(0.5)
+    def keep_main(self):
+        while True:
+            time.sleep(0.5)
 
 
 class FuncThread(threading.Thread):
@@ -248,22 +257,17 @@ app = web.Application([
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 
-if __name__ == '__main__':
-    app.listen(options.port)
-    t1 = FuncThread(ioloop.IOLoop.instance().start)
-    t1.start()
-    t1.join()
-
 if __name__ == "__main__":
+    # for rpi
+    print "starting rpi comm"
+    client_rpi = RPi()
+    rt = threading.Thread(target=client_rpi.receive_send)
+    rt.daemon = True
+    rt.start()
+    client_rpi.keep_main()
+
     # for front end
     app.listen(options.port)
     t1 = FuncThread(ioloop.IOLoop.instance().start)
     t1.start()
     t1.join()
-
-    # for rpi
-    client_rpi = RPi()
-    rt = threading.Thread(target=client_rpi.receive)
-    rt.daemon = True
-    rt.start()
-    client_rpi.keep_main()

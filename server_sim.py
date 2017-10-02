@@ -110,6 +110,7 @@ class StartHandler(web.RequestHandler):
         startExploration(self.step, self.limit, self.coverage)
         self.flush()
 
+
 class ResetHandler(web.RequestHandler):
 
     """Handles the reset of the current map
@@ -181,6 +182,7 @@ def exploration(exp, step, limit, coverage):
     visited = dict()
     steps = 0
     numCycle = 1
+    print currentMap, current
     while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
@@ -271,6 +273,7 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime):
         goal (list): Location of the finishing point for the robot
         elapsedTime (float): The time that has elapsed since exploration started
     """
+    print 'here'
     for key in clients:
         message = dict()
         message['area'] = '%.2f' % (exploredArea)

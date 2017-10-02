@@ -39,10 +39,10 @@ class Exploration:
         if sim:
             from Simulator import Robot
             self.robot = Robot(self.currentMap, NORTH, START, realMap)
+            self.sensors = self.robot.getSensors()
         else:
             from Real import Robot
             self.robot = Robot(self.currentMap, NORTH, START)
-        self.sensors = self.robot.getSensors()
         self.exploredNeighbours = dict()
 
     def __validInds(self, inds):
