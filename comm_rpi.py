@@ -260,6 +260,10 @@ settings = dict(
 app = web.Application([
     (r'/', IndexHandler),
     (r'/websocket', WebSocketHandler),
+    (r'/start', StartHandler),
+    (r'/reset', ResetHandler),
+    (r'/fsp', FSPHandler),
+    (r'/lm', LoadMapHandler),
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 
