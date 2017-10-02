@@ -226,7 +226,7 @@ class FastestPath:
         """To take the fastest path, robot location and determine the next
         move for the robot to follow the path
         """
-        movement = self.movement
+        movement = []
         if (self.robot.center.tolist() != self.path[self.index]):
             diff = self.robot.center - np.asarray(self.path[self.index])
             if (diff[0] == -1 and diff[1] == 0):  # Going south
@@ -267,4 +267,5 @@ class FastestPath:
                     movement.extend((RIGHT, FORWARD))
             for move in movement:
                 self.robot.moveBot(move)
+        self.movement.extend(movement)
         self.index += 1

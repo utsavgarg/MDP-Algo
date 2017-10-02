@@ -104,71 +104,69 @@ class Robot:
         Returns:
             Numpy array of Numpy arrays: Sensor values from all sensors
         """
-        sensors = np.asarray([[None]*4]*6)
-        maxDistance = 4
+        distanceShort = 3
+        distanceLong = 5
         r, c = self.center
 
         # Front Left
         if self.direction == NORTH:
-            sensors[0] = self.getValue(zip(range(r-maxDistance-1, r-1), [c-1]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1])
         elif self.direction == EAST:
-            sensors[0] = self.getValue(zip([r-1]*maxDistance, range(c+2, c+maxDistance+2)))
+            self.getValue(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)))
         elif self.direction == WEST:
-            sensors[0] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort, c))[::-1])
         else:
-            sensors[0] = self.getValue(zip(range(r+2, r+maxDistance+2), [c+1]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort))
 
         # Front Center
         if self.direction == NORTH:
-            sensors[1] = self.getValue(zip(range(r-maxDistance-1, r-1), [c]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceShort-1, r-1), [c]*distanceShort)[::-1])
         elif self.direction == EAST:
-            sensors[1] = self.getValue(zip([r]*maxDistance, range(c+2, c+maxDistance+2)))
+            self.getValue(zip([r]*distanceShort, range(c+2, c+distanceShort+2)))
         elif self.direction == WEST:
-            sensors[1] = self.getValue(zip([r]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r]*distanceShort, range(c-distanceShort, c))[::-1])
         else:
-            sensors[1] = self.getValue(zip(range(r+2, r+maxDistance+2), [c]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceShort+2), [c]*distanceShort))
 
         # Front Right
         if self.direction == NORTH:
-            sensors[2] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceShort-1, r-1), [c+1]*distanceShort)[::-1])
         elif self.direction == EAST:
-            sensors[2] = self.getValue(zip([r+1]*maxDistance, range(c+2, c+maxDistance+2)))
+            self.getValue(zip([r+1]*distanceShort, range(c+2, c+distanceShort+2)))
         elif self.direction == WEST:
-            sensors[2] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r-1]*distanceShort, range(c-distanceShort, c))[::-1])
         else:
-            sensors[2] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceShort+2), [c-1]*distanceShort))
 
         # Right Top
         if self.direction == NORTH:
-            sensors[3] = self.getValue(zip([r-1]*maxDistance, range(c+2, c+maxDistance+2)))
+            self.getValue(zip([r-1]*distanceLong, range(c+2, c+distanceLong+2)))
         elif self.direction == EAST:
-            sensors[3] = self.getValue(zip(range(r+2, r+maxDistance+2), [c+1]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceLong+2), [c+1]*distanceLong))
         elif self.direction == WEST:
-            sensors[3] = self.getValue(zip(range(r-maxDistance-1, r-1), [c-1]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceLong-1, r-1), [c-1]*distanceLong)[::-1])
         else:
-            sensors[3] = self.getValue(zip([r+1]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r+1]*distanceLong, range(c-distanceLong, c))[::-1])
 
         # Right Bottom
         if self.direction == NORTH:
-            sensors[4] = self.getValue(zip([r+1]*maxDistance, range(c+2, c+maxDistance+2)))
+            self.getValue(zip([r+1]*distanceShort, range(c+2, c+distanceShort+2)))
         elif self.direction == EAST:
-            sensors[4] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceShort+2), [c-1]*distanceShort))
         elif self.direction == WEST:
-            sensors[4] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceShort-1, r-1), [c+1]*distanceShort)[::-1])
         else:
-            sensors[4] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r-1]*distanceShort, range(c-distanceShort, c))[::-1])
 
         # Left Top
         if self.direction == NORTH:
-            sensors[5] = self.getValue(zip([r-1]*maxDistance, range(c-maxDistance, c))[::-1])
+            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong, c))[::-1])
         elif self.direction == EAST:
-            sensors[5] = self.getValue(zip(range(r-maxDistance-1, r-1), [c+1]*maxDistance)[::-1])
+            self.getValue(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1])
         elif self.direction == WEST:
-            sensors[5] = self.getValue(zip(range(r+2, r+maxDistance+2), [c-1]*maxDistance))
+            self.getValue(zip(range(r+2, r+distanceLong+2), [c-1]*distanceLong))
         else:
-            sensors[5] = self.getValue(zip([r+1]*maxDistance, range(c+2, c+maxDistance+2)))
-
-        return sensors
+            self.getValue(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)))
 
     def moveBot(self, movement):
         """Simulates the bot movement based on current location, direction and received action

@@ -30,6 +30,7 @@ currentMap = np.ones([20, 15])
 map_name = 'map.txt'
 
 area = 0
+step = 0.1
 
 
 class FuncThread(threading.Thread):
@@ -107,7 +108,9 @@ class StartHandler(web.RequestHandler):
         self.step = self.get_argument("step")
         self.limit = self.get_argument("limit")
         self.coverage = self.get_argument("coverage")
-        startExploration(self.step, self.limit, self.coverage)
+        global step
+        step = float(self.step)
+        startExploration(self.limit, self.coverage)
         self.flush()
 
 
@@ -121,6 +124,7 @@ class ResetHandler(web.RequestHandler):
         self.write("Reset...")
         global exp
         exp = Exploration(map_name, 5)
+        print exp.currentMap
         update(np.zeros([20, 15]), exp.exploredArea, exp.robot.center, exp.robot.head,
                START, GOAL, 0)
 
@@ -151,26 +155,24 @@ class LoadMapHandler(web.RequestHandler):
         map_name = self.name
 
 
-def startExploration(step, limit, coverage):
+def startExploration(limit, coverage):
     """To start the exploration of the maze
     """
-    global exp
-    global t_s
+    global exp, t_s
     exp = Exploration(map_name, 5)
     t_s = time.time()
-    t2 = FuncThread(exploration, exp, step, limit, coverage)
+    t2 = FuncThread(exploration, exp, limit, coverage)
     t2.start()
     # t2.join()
 
 
-def exploration(exp, step, limit, coverage):
+def exploration(exp, limit, coverage):
     """To explore the map and update the front-end after each move
 
     Args:
         exp (Exploration): New instance of the exploration class
     """
-    global currentMap
-    global area
+    global currentMap, area
     limit = map(int, str(limit).strip().split(':'))
     time_limit = limit[0]*60*60 + limit[1]*60 + limit[2]
     elapsedTime = 0
@@ -182,8 +184,7 @@ def exploration(exp, step, limit, coverage):
     visited = dict()
     steps = 0
     numCycle = 1
-    print currentMap, current
-    while (not current and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
+    while (not current[1] and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
         elapsedTime = round(time.time()-t_s, 2)
         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
                elapsedTime)
@@ -194,7 +195,7 @@ def exploration(exp, step, limit, coverage):
         currentPos = tuple(exp.robot.center)
         if (currentPos in visited):
             visited[currentPos] += 1
-            if (visited[currentPos] > 2):
+            if (visited[currentPos] > 3):
                 neighbour = exp.getExploredNeighbour()
                 if (neighbour):
                     neighbour = np.asarray(neighbour)
@@ -257,7 +258,7 @@ def fastestPath(fsp, goal, area, waypoint):
         elapsedTime = round(time.time()-t_s, 2)
         update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
                START, GOAL, elapsedTime)
-        time.sleep(0.1)
+        time.sleep(step)
     logger('Fastest Path Done !')
 
 
@@ -273,7 +274,6 @@ def update(current_map, exploredArea, center, head, start, goal, elapsedTime):
         goal (list): Location of the finishing point for the robot
         elapsedTime (float): The time that has elapsed since exploration started
     """
-    print 'here'
     for key in clients:
         message = dict()
         message['area'] = '%.2f' % (exploredArea)
