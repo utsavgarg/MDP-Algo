@@ -26,7 +26,7 @@ from Algo.Constants import START, GOAL, NORTH
 __author__ = "Utsav Garg"
 
 # Global Variables
-define("port", default=8890, help="run on the given port", type=int)
+define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
 currentMap = np.ones([20, 15])
 area = 0
