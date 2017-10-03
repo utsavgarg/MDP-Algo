@@ -25,14 +25,20 @@ from Algo.Constants import START, GOAL, NORTH
 
 __author__ = "Utsav Garg"
 
-define("port", default=8888, help="run on the given port", type=int)
-
+# Global Variables
+define("port", default=8890, help="run on the given port", type=int)
 clients = dict()
-
 currentMap = np.ones([20, 15])
+area = 0
+exp = ''
+fsp = ''
+visited = dict()
+steps = 0
+numCycle = 1
+t_s = 0
+
 map_name = 'map.txt'
 
-area = 0
 step = 0.1
 
 
