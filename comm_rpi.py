@@ -1,20 +1,32 @@
+#!/usr/bin/env python
+"""Tornado server to run the simulation experiments
+
+Attributes:
+    app (tornado.web.Application): Address mappings
+    clients (dict): Dictionary of active clients
+    settings (dict): Settings for the web-server
+"""
+
 import socket
-import time
 import json
 import numpy as np
 import os
+import time
 import tornado.web as web
 import tornado.websocket as websocket
 import tornado.ioloop as ioloop
 import threading
+from multiprocessing import Process
 
 from tornado.options import define, options
 from Algo.Exploration import Exploration
 from Algo.FastestPath import FastestPath
-from Algo.Constants import START, GOAL
+from Algo.Constants import START, GOAL, NORTH
+
+__author__ = "Utsav Garg"
 
 # Global Variables
-define("port", default=8890, help="run on the given port", type=int)
+define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
 currentMap = np.ones([20, 15])
 area = 0
@@ -25,167 +37,9 @@ steps = 0
 numCycle = 1
 t_s = 0
 
+map_name = 'map.txt'
 
-def markMap(curMap, waypoint):
-    if waypoint:
-        curMap[tuple(waypoint)] = 7
-    return curMap
-
-
-def fastestPath(fsp, goal, area, waypoint):
-    fsp.getFastestPath()
-    logger(json.dumps(fsp.path))
-    while (fsp.robot.center.tolist() != goal.tolist()):
-        fsp.moveStep()
-        elapsedTime = round(time.time()-t_s, 2)
-        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
-               START, GOAL, elapsedTime)
-    logger('Fastest Path Done !')
-
-
-def update(current_map, exploredArea, center, head, start, goal, elapsedTime):
-    """To send messages to update the front-end
-
-    Args:
-        current_map (Numpy array): Current state of the exploration map
-        exploredArea (int): Number of cells that have been explored
-        center (list): Location of center of the robot
-        head (list): Location of head of the robot
-        start (list): Location of the starting point for the robot
-        goal (list): Location of the finishing point for the robot
-        elapsedTime (float): The time that has elapsed since exploration started
-    """
-    for key in clients:
-        message = dict()
-        message['area'] = '%.2f' % (exploredArea)
-        tempMap = current_map.copy()
-        tempMap[start[0]-1: start[0]+2, start[1]-1: start[1]+2] = 3
-        tempMap[goal[0]-1: goal[0]+2, goal[1]-1: goal[1]+2] = 4
-        message['map'] = json.dumps(tempMap.astype(int).tolist())
-        message['center'] = json.dumps(center.astype(int).tolist())
-        message['head'] = json.dumps(head.astype(int).tolist())
-        message['time'] = '%.2f' % (elapsedTime)
-        clients[key]['object'].write_message(json.dumps(message))
-
-
-def logger(message):
-    for key in clients:
-        log = {'log': message}
-        clients[key]['object'].write_message(json.dumps(log))
-
-
-def output_formatter(msg, start, movement):
-    if not isinstance(start, list):
-        start = start.tolist()
-    if not isinstance(movement, list):
-        movement = movement.tolist()
-    start = map(str, start)
-    movement = map(str, movement)
-    return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
-
-
-class RPi(threading.Thread):
-    def __init__(self):
-        print "starting rpi communication"
-        threading.Thread.__init__(self)
-
-        self.ip = "192.168.26.1"  # Connecting to IP address of MDPGrp26
-        self.port = 5182
-
-        # Create a TCP/IP socket
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect((self.ip, self.port))
-        print "sent connection request"
-
-        # Receive and send data to RPi data
-    def receive_send(self):
-        while True:
-            current_pos = None
-            data = self.client_socket.recv(1024)
-            if (data):
-                print ('Received %s from RPi' % (data))
-                split_data = data.split("|")
-                global exp, t_s, area, steps, numCycle, currentMap, exp, fsp
-                if (split_data[0] == 'EXPLORE'):
-                    t_s = time.time()
-                    exp = Exploration(sim=False)
-                    current_pos = exp.robot.center
-                    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
-                           START, GOAL, 0)
-                elif (split_data[0] == 'COMPUTE'):
-                    sensors = map(float, split_data[1:])
-                    current_pos = exp.robot.center
-                    current = exp.moveStep(sensors)
-                    if (not current[1]):
-                        move = current[0]
-                        currentMap = exp.currentMap
-                        elapsedTime = round(time.time()-t_s, 2)
-                        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
-                               START, GOAL, elapsedTime)
-                        steps += 1
-                        currentPos = tuple(exp.robot.center)
-                        if (currentPos in visited):
-                            visited[currentPos] += 1
-                            if (visited[currentPos] > 2):
-                                neighbour = exp.getExploredNeighbour()
-                                if (neighbour):
-                                    neighbour = np.asarray(neighbour)
-                                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
-                                                      exp.robot.direction, None, sim=False)
-                                    fastestPath(fsp, neighbour, exp.exploredArea, None)
-                                    move.extend(fsp.movement)
-                                    exp.robot.center = neighbour
-                                else:
-                                    break
-                            else:
-                                visited[currentPos] = 1
-                            if (np.array_equal(exp.robot.center, START)):
-                                numCycle += 1
-                                if (numCycle > 1 and steps > 4):
-                                    neighbour = exp.getExploredNeighbour()
-                                    if (neighbour):
-                                        neighbour = np.asarray(neighbour)
-                                        fsp = FastestPath(currentMap, exp.robot.center, neighbour,
-                                                          exp.robot.direction, None)
-                                        fastestPath(fsp, neighbour, exp.exploredArea, None, sim=False)
-                                        move.extend(fsp.movement)
-                                        exp.robot.center = neighbour
-                                    else:
-                                        break
-                    else:
-                        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
-                               START, GOAL, elapsedTime)
-                        logger('Exploration Done !')
-                        logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
-                        logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
-                        fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
-                                          None, sim=False)
-                        logger('Fastest Path Started !')
-                        fastestPath(fsp, START, exp.exploredArea, None)
-                        move.extend(fsp.movement)
-                    get_msg = output_formatter('MOVEMENT', current_pos, move)
-                    self.client_socket.send(get_msg)
-                    print ('Sent %s to RPi' % (get_msg))
-                elif (split_data[0] == 'FASTEST'):
-                    waypoint = map(int, split_data[1:])
-                    fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
-                                      waypoint, sim=False)
-                    current_pos = fsp.robot.center
-                    fastestPath(fsp, START, exp.exploredArea, None)
-                    move = fsp.movement
-                    get_msg = output_formatter('MOVE', current_pos, move)
-                    self.client_socket.send(get_msg)
-                    print ('Sent %s to RPi' % (get_msg))
-                elif (split_data[0] == 'MANUAL'):
-                    # need to receive:
-                    # starting coordinates
-                    # starting direction
-                    # movement
-                    pass
-
-    def keep_main(self):
-        while True:
-            time.sleep(0.5)
+step = 0.1
 
 
 class FuncThread(threading.Thread):
@@ -310,6 +164,257 @@ class LoadMapHandler(web.RequestHandler):
         map_name = self.name
 
 
+def startExploration(limit, coverage):
+    """To start the exploration of the maze
+    """
+    global exp, t_s
+    exp = Exploration(map_name, 5)
+    t_s = time.time()
+    t2 = FuncThread(exploration, exp, limit, coverage)
+    t2.start()
+    # t2.join()
+
+
+def exploration(exp, limit, coverage):
+    """To explore the map and update the front-end after each move
+
+    Args:
+        exp (Exploration): New instance of the exploration class
+    """
+    global currentMap, area
+    limit = map(int, str(limit).strip().split(':'))
+    time_limit = limit[0]*60*60 + limit[1]*60 + limit[2]
+    elapsedTime = 0
+    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL, 0)
+    logger('Exploration Started !')
+    current = exp.moveStep()
+    currentMap = exp.currentMap
+    area = exp.exploredArea
+    visited = dict()
+    steps = 0
+    numCycle = 1
+    while (not current[1] and elapsedTime <= time_limit and exp.exploredArea < int(coverage)):
+        elapsedTime = round(time.time()-t_s, 2)
+        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
+               elapsedTime)
+        current = exp.moveStep()
+        currentMap = exp.currentMap
+        area = exp.exploredArea
+        steps += 1
+        currentPos = tuple(exp.robot.center)
+        if (currentPos in visited):
+            visited[currentPos] += 1
+            if (visited[currentPos] > 3):
+                neighbour = exp.getExploredNeighbour()
+                if (neighbour):
+                    neighbour = np.asarray(neighbour)
+                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                      exp.robot.direction, None)
+                    fastestPath(fsp, neighbour, exp.exploredArea, None)
+                    exp.robot.center = neighbour
+                else:
+                    break
+        else:
+            visited[currentPos] = 1
+        if (np.array_equal(exp.robot.center, START)):
+            numCycle += 1
+            if (numCycle > 1 and steps > 4):
+                neighbour = exp.getExploredNeighbour()
+                if (neighbour):
+                    neighbour = np.asarray(neighbour)
+                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                      exp.robot.direction, None)
+                    fastestPath(fsp, neighbour, exp.exploredArea, None)
+                    exp.robot.center = neighbour
+                else:
+                    break
+        time.sleep(float(step))
+    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head, START, GOAL,
+           elapsedTime)
+    logger('Exploration Done !')
+    logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
+    logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
+    fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction, None)
+    logger('Fastest Path Started !')
+    fastestPath(fsp, START, exp.exploredArea, None)
+
+
+def startFastestPath(waypoint):
+    """To start the fastest path of the maze
+    """
+    global fsp
+    global t_s
+    waypoint = map(int, waypoint)
+    fsp = FastestPath(currentMap, START, GOAL, NORTH, waypoint)
+    t_s = time.time()
+    logger('Fastest Path Started !')
+    t3 = FuncThread(fastestPath, fsp, GOAL, area, waypoint)
+    t3.start()
+    # t3.join() this causes the thread to close after exploration and websocket closes
+
+
+def markMap(curMap, waypoint):
+    if waypoint:
+        curMap[tuple(waypoint)] = 7
+    return curMap
+
+
+def fastestPath(fsp, goal, area, waypoint):
+    fsp.getFastestPath()
+    logger(json.dumps(fsp.path))
+    while (fsp.robot.center.tolist() != goal.tolist()):
+        fsp.moveStep()
+        elapsedTime = round(time.time()-t_s, 2)
+        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
+               START, GOAL, elapsedTime)
+        time.sleep(step)
+    logger('Fastest Path Done !')
+
+
+def update(current_map, exploredArea, center, head, start, goal, elapsedTime):
+    """To send messages to update the front-end
+
+    Args:
+        current_map (Numpy array): Current state of the exploration map
+        exploredArea (int): Number of cells that have been explored
+        center (list): Location of center of the robot
+        head (list): Location of head of the robot
+        start (list): Location of the starting point for the robot
+        goal (list): Location of the finishing point for the robot
+        elapsedTime (float): The time that has elapsed since exploration started
+    """
+    for key in clients:
+        message = dict()
+        message['area'] = '%.2f' % (exploredArea)
+        tempMap = current_map.copy()
+        tempMap[start[0]-1: start[0]+2, start[1]-1: start[1]+2] = 3
+        tempMap[goal[0]-1: goal[0]+2, goal[1]-1: goal[1]+2] = 4
+        message['map'] = json.dumps(tempMap.astype(int).tolist())
+        message['center'] = json.dumps(center.astype(int).tolist())
+        message['head'] = json.dumps(head.astype(int).tolist())
+        message['time'] = '%.2f' % (elapsedTime)
+        clients[key]['object'].write_message(json.dumps(message))
+
+
+def logger(message):
+    for key in clients:
+        log = {'log': message}
+        clients[key]['object'].write_message(json.dumps(log))
+
+def output_formatter(msg, start, movement):
+    if not isinstance(start, list):
+        start = start.tolist()
+    if not isinstance(movement, list):
+        movement = movement.tolist()
+    start = map(str, start)
+    movement = map(str, movement)
+    return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
+
+
+class RPi(threading.Thread):
+    def __init__(self):
+        print "starting rpi communication"
+        threading.Thread.__init__(self)
+
+        self.ip = "192.168.26.1"  # Connecting to IP address of MDPGrp26
+        self.port = 5182
+
+        # Create a TCP/IP socket
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.ip, self.port))
+        print "sent connection request"
+
+        # Receive and send data to RPi data
+    def receive_send(self):
+        while True:
+            current_pos = None
+            data = self.client_socket.recv(1024)
+            if (data):
+                print ('Received %s from RPi' % (data))
+                split_data = data.split("|")
+                global exp, t_s, area, steps, numCycle, currentMap, exp, fsp
+                if (split_data[0] == 'EXPLORE'):
+                    t_s = time.time()
+                    exp = Exploration(sim=False)
+                    current_pos = exp.robot.center
+                    update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
+                           START, GOAL, 0)
+                elif (split_data[0] == 'COMPUTE'):
+                    sensors = map(float, split_data[1:])
+                    current_pos = exp.robot.center
+                    current = exp.moveStep(sensors)
+                    if (not current[1]):
+                        move = current[0]
+                        currentMap = exp.currentMap
+                        elapsedTime = round(time.time()-t_s, 2)
+                        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
+                               START, GOAL, elapsedTime)
+                        steps += 1
+                        currentPos = tuple(exp.robot.center)
+                        if (currentPos in visited):
+                            visited[currentPos] += 1
+                            if (visited[currentPos] > 2):
+                                neighbour = exp.getExploredNeighbour()
+                                if (neighbour):
+                                    neighbour = np.asarray(neighbour)
+                                    fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                                      exp.robot.direction, None, sim=False)
+                                    fastestPath(fsp, neighbour, exp.exploredArea, None)
+                                    move.extend(fsp.movement)
+                                    exp.robot.center = neighbour
+                                else:
+                                    break
+                            else:
+                                visited[currentPos] = 1
+                            if (np.array_equal(exp.robot.center, START)):
+                                numCycle += 1
+                                if (numCycle > 1 and steps > 4):
+                                    neighbour = exp.getExploredNeighbour()
+                                    if (neighbour):
+                                        neighbour = np.asarray(neighbour)
+                                        fsp = FastestPath(currentMap, exp.robot.center, neighbour,
+                                                          exp.robot.direction, None)
+                                        fastestPath(fsp, neighbour, exp.exploredArea, None, sim=False)
+                                        move.extend(fsp.movement)
+                                        exp.robot.center = neighbour
+                                    else:
+                                        break
+                    else:
+                        update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
+                               START, GOAL, elapsedTime)
+                        logger('Exploration Done !')
+                        logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
+                        logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
+                        fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
+                                          None, sim=False)
+                        logger('Fastest Path Started !')
+                        fastestPath(fsp, START, exp.exploredArea, None)
+                        move.extend(fsp.movement)
+                    get_msg = output_formatter('MOVEMENT', current_pos, move)
+                    self.client_socket.send(get_msg)
+                    print ('Sent %s to RPi' % (get_msg))
+                elif (split_data[0] == 'FASTEST'):
+                    waypoint = map(int, split_data[1:])
+                    fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
+                                      waypoint, sim=False)
+                    current_pos = fsp.robot.center
+                    fastestPath(fsp, START, exp.exploredArea, None)
+                    move = fsp.movement
+                    get_msg = output_formatter('MOVE', current_pos, move)
+                    self.client_socket.send(get_msg)
+                    print ('Sent %s to RPi' % (get_msg))
+                elif (split_data[0] == 'MANUAL'):
+                    # need to receive:
+                    # starting coordinates
+                    # starting direction
+                    # movement
+                    pass
+
+    def keep_main(self):
+        while True:
+            time.sleep(0.5)
+
+
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "GUI", "templates"),
     debug=True
@@ -325,17 +430,24 @@ app = web.Application([
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 
-if __name__ == "__main__":
-    # for rpi
-    print "starting rpi comm"
-    client_rpi = RPi()
-    rt = threading.Thread(target=client_rpi.receive_send)
-    rt.daemon = True
-    rt.start()
-    client_rpi.keep_main()
+def rpi_connection():
+        print "starting rpi comm"
+        client_rpi = RPi()
+        rt = threading.Thread(target=client_rpi.receive_send)
+        rt.daemon = True
+        rt.start()
+        client_rpi.keep_main()
 
-    # for front end
-    app.listen(options.port)
-    t1 = FuncThread(ioloop.IOLoop.instance().start)
-    t1.start()
-    t1.join()
+def front_end_connnection():
+        app.listen(options.port)
+        t1 = FuncThread(ioloop.IOLoop.instance().start)
+        t1.start()
+        t1.join()
+
+if __name__ == '__main__':
+    p1 = Process(target=rpi_connection)
+    p2 = Process(target=front_end_connnection)
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
