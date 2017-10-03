@@ -301,6 +301,14 @@ def logger(message):
         log = {'log': message}
         clients[key]['object'].write_message(json.dumps(log))
 
+def output_formatter(msg, start, movement):
+    if not isinstance(start, list):
+        start = start.tolist()
+    if not isinstance(movement, list):
+        movement = movement.tolist()
+    start = map(str, start)
+    movement = map(str, movement)
+    return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
 
 settings = dict(
     template_path=os.path.join(os.path.dirname(__file__), "GUI", "templates"),
