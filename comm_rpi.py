@@ -414,7 +414,8 @@ class RPi(threading.Thread):
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'): # "MANUAL|18|1|EAST|W"
-                    manual_starting_coordinates = map(int, split_data[1:2])
+                    #assume where it is right now cuz they not sending the coordinates
+                    manual_starting_coordinates = map(int, split_data[1:2]) 
                     manual_starting_direction = split_data[3]
                     manual_movement = split_data[4]
                     # Set Robot Centre using manual_starting_coordinates

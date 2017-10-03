@@ -3,6 +3,10 @@
 
 * comm_rpi.py
 	* calibrate command
+		- After 6 steps, check and reset
+		- If the obstacles are aligned, can calibrate
+		- If the obstacles are diagonal (sensor values are not the same), cannot calibrate
+		- If there are no obstacles, cannot calibrate
 	* movement command from rpi for manual control
 
 * Exploration.py
