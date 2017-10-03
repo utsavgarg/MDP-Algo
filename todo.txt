@@ -4,7 +4,6 @@
 * comm_rpi.py
 	* calibrate command
 	* movement command from rpi for manual control
-	* front end display
 
 * Exploration.py
 	* Test and fix bugs (if any)
