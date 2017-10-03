@@ -7,6 +7,12 @@
 		- If the obstacles are aligned, can calibrate
 		- If the obstacles are diagonal (sensor values are not the same), cannot calibrate
 		- If there are no obstacles, cannot calibrate
+		From Steffano:
+			every turn i need to calibrate
+			left turn, definitely calibrate
+			right turn maybe cannot
+			five times x needs to calibrate one time
+			15 to 20 W -> calibrate
 	* movement command from rpi for manual control
 
 * Exploration.py

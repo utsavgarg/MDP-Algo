@@ -29,13 +29,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-#currentMap = np.ones([20, 15])
+currentMap = np.ones([20, 15])
 
-def loadMap():
-    with open(os.path.join('Maps', 'map.txt')) as f:
-        return np.genfromtxt(f, dtype=int, delimiter=1)
+# def loadMap():
+#     with open(os.path.join('Maps', 'map.txt')) as f:
+#         return np.genfromtxt(f, dtype=int, delimiter=1)
 
-currentMap = loadMap()
+# currentMap = loadMap()
+
 area = 0
 exp = ''
 fsp = ''
