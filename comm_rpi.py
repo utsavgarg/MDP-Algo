@@ -407,6 +407,9 @@ class RPi(threading.Thread):
                     manual_starting_coordinates = map(int, split_data[1:2])
                     manual_starting_direction = split_data[3]
                     manual_movement = split_data[4]
+                    # Set Robot Centre using manual_starting_coordinates
+                    # Set Starting Direction using manual_starting_direction
+                    # Move the Robot using moveBot function
 
     def keep_main(self):
         while True:
