@@ -310,6 +310,7 @@ def logger(message):
         log = {'log': message}
         clients[key]['object'].write_message(json.dumps(log))
 
+
 def output_formatter(msg, start, movement):
     if not isinstance(start, list):
         start = start.tolist()
@@ -404,10 +405,10 @@ class RPi(threading.Thread):
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
-                    fsp = FastestPath(currentMap, np.asarray([18,1]), START, NORTH,
+                    fsp = FastestPath(currentMap, START, GOAL, NORTH,
                                       waypoint, sim=False)
                     current_pos = fsp.robot.center
-                    fastestPath(fsp, START, 300, None)
+                    fastestPath(fsp, GOAL, 300, waypoint)
                     move = fsp.movement
                     get_msg = output_formatter('MOVEMENT', current_pos, move)
                     self.client_socket.send(get_msg)
