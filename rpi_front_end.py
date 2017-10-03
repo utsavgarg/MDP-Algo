@@ -430,8 +430,7 @@ app = web.Application([
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 
-if __name__ == '__main__':
-		# for rpi
+def rpi_connection():
 		print "starting rpi comm"
 		client_rpi = RPi()
 		rt = threading.Thread(target=client_rpi.receive_send)
@@ -439,8 +438,16 @@ if __name__ == '__main__':
 		rt.start()
 		client_rpi.keep_main()
 
-		# for front end
+def front_end_connnection():
 		app.listen(options.port)
 		t1 = FuncThread(ioloop.IOLoop.instance().start)
 		t1.start()
 		t1.join()
+
+if __name__ == '__main__':
+    p1 = Process(target=rpi_connection)
+    p2 = Process(target=front_end_connnection)
+    p1.start()
+    p2.start()
+    p1.join()
+    p2.join()
