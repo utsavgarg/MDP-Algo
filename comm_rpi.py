@@ -403,7 +403,7 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVE', current_pos, move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
-                elif (split_data[0] == 'MANUAL'): # "MANUAL|19|2|EAST|W"
+                elif (split_data[0] == 'MANUAL'): # "MANUAL|18|1|EAST|W"
                     manual_starting_coordinates = map(int, split_data[1:2])
                     manual_starting_direction = split_data[3]
                     manual_movement = split_data[4]
