@@ -29,7 +29,13 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-currentMap = np.ones([20, 15])
+#currentMap = np.ones([20, 15])
+
+def loadMap():
+    with open(os.path.join('Maps', 'map.txt')) as f:
+        return np.genfromtxt(f, dtype=int, delimiter=1)
+
+currentMap = loadMap()
 area = 0
 exp = ''
 fsp = ''
@@ -41,6 +47,8 @@ t_s = 0
 map_name = 'map.txt'
 
 step = 0.1
+
+
 
 
 class FuncThread(threading.Thread):
@@ -396,12 +404,12 @@ class RPi(threading.Thread):
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
-                    fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction,
+                    fsp = FastestPath(currentMap, np.asarray([18,1]), START, NORTH,
                                       waypoint, sim=False)
                     current_pos = fsp.robot.center
-                    fastestPath(fsp, START, exp.exploredArea, None)
+                    fastestPath(fsp, START, 300, None)
                     move = fsp.movement
-                    get_msg = output_formatter('MOVE', current_pos, move)
+                    get_msg = output_formatter('MOVEMENT', current_pos, move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'): # "MANUAL|18|1|EAST|W"
