@@ -431,16 +431,16 @@ app = web.Application([
 ], **settings)
 
 if __name__ == '__main__':
-	# for rpi
-	print "starting rpi comm"
-	client_rpi = RPi()
-	rt = threading.Thread(target=client_rpi.receive_send)
-	rt.daemon = True
-	rt.start()
-	client_rpi.keep_main()
+		# for rpi
+		print "starting rpi comm"
+		client_rpi = RPi()
+		rt = threading.Thread(target=client_rpi.receive_send)
+		rt.daemon = True
+		rt.start()
+		client_rpi.keep_main()
 
-	# for front end
-	app.listen(options.port)
-	t1 = FuncThread(ioloop.IOLoop.instance().start)
-	t1.start()
-	t1.join()
+		# for front end
+		app.listen(options.port)
+		t1 = FuncThread(ioloop.IOLoop.instance().start)
+		t1.start()
+		t1.join()
