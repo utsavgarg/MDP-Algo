@@ -6,6 +6,8 @@ Attributes:
     clients (dict): Dictionary of active clients
     settings (dict): Settings for the web-server
 """
+
+import socket
 import json
 import numpy as np
 import os
@@ -14,6 +16,7 @@ import tornado.web as web
 import tornado.websocket as websocket
 import tornado.ioloop as ioloop
 import threading
+from multiprocessing import Process
 
 from tornado.options import define, options
 from Algo.Exploration import Exploration
