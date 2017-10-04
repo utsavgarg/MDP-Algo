@@ -38,6 +38,7 @@ class Robot:
         self.setHead()
         self.movement = []
         self.markArea(start, 1)
+        self.stepCounter = 0
 
     def markArea(self, center, value):
         """To mark a 3x3 neighbourhood around the center location with a particular
@@ -174,42 +175,90 @@ class Robot:
 
     def can_calibrate(self):
         r, c = self.center
-        flag = False
+        flag = [False, None]
         if self.direction == NORTH:
-            for i in range(2, 7):
-                if ((c + i) < MAX_COLS):
-                    if (self.exploredMap[r-1, c+i] == 2 and self.exploredMap[r+1, c+i] == 2):
-                        flag = True
-                        break
-                else:
-                    flag = True
+            print 'north'
+            for i in range(2, 5):
+                if ((c + i) < MAX_COLS and (self.exploredMap[r-1, c+i] == 2 and
+                   self.exploredMap[r+1, c+i] == 2)):
+                    print 'case1'
+                    flag = [True, 'R']
+                    break
+                elif ((c + i) == MAX_COLS):
+                    print 'case2'
+                    flag = [True, 'R']
+                    break
+                elif ((r - i) >= 0 and (self.exploredMap[r-i][c-1] == 2 and
+                      self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
+                    print 'case3'
+                    flag = [True, 'F']
+                    break
+                elif ((r-i) < 0):
+                    print 'case4'
+                    flag = [True, 'F']
                     break
         elif self.direction == WEST:
-            for i in range(2, 7):
-                if ((r - i) > 0):
-                    if (self.exploredMap[r-i, c-1] == 2 and self.exploredMap[r-i, c+1] == 2):
-                        flag = True
-                        break
-                else:
-                    flag = True
+            print 'west'
+            for i in range(2, 5):
+                if ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
+                   self.exploredMap[r-i, c+1] == 2)):
+                    print 'case1'
+                    flag = [True, 'R']
+                    break
+                elif ((r - i) < 0):
+                    print 'case2'
+                    flag = [True, 'R']
+                    break
+                elif ((c-i) >= 0 and (self.exploredMap[r-1][c-i] == 2 and
+                      self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
+                    print 'case3'
+                    flag = [True, 'F']
+                    break
+                elif ((c-i) < 0):
+                    print 'case4'
+                    flag = [True, 'F']
                     break
         elif self.direction == EAST:
-            for i in range(2, 7):
-                if ((r + i) < MAX_ROWS):
-                    if (self.exploredMap[r+i, c-1] == 2 and self.exploredMap[r+i, c+1] == 2):
-                        flag = True
-                        break
-                else:
-                    flag = True
+            for i in range(2, 5):
+                print 'east'
+                if ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
+                   self.exploredMap[r+i, c+1] == 2)):
+                    print 'case1'
+                    flag = [True, 'R']
+                    break
+                elif ((r + i) == MAX_ROWS):
+                    print 'case2'
+                    flag = [True, 'R']
+                    break
+                elif ((c + i) < MAX_COLS and (self.exploredMap[r-1][c+i] == 2 and
+                      self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
+                    print 'case3'
+                    flag = [True, 'F']
+                    break
+                elif ((c + i) == MAX_COLS):
+                    print 'case4'
+                    flag = [True, 'F']
                     break
         else:
-            for i in range(2, 7):
-                if ((r - i) > 0):
-                    if (self.exploredMap[r-1, c-i] == 2 and self.exploredMap[r+1, c-i] == 2):
-                        flag = True
-                        break
-                else:
-                    flag = True
+            for i in range(2, 5):
+                print 'south'
+                if ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
+                   self.exploredMap[r+1, c-i] == 2)):
+                    print 'case1'
+                    flag = [True, 'R']
+                    break
+                elif ((c-i) < 0):
+                    print 'case2'
+                    flag = [True, 'R']
+                    break
+                elif ((r+i) < MAX_ROWS and (self.exploredMap[r+i][c-1] == 2 and
+                      self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
+                    print 'case3'
+                    flag = [True, 'F']
+                    break
+                elif ((r+i) == MAX_ROWS):
+                    print 'case4'
+                    flag = [True, 'F']
                     break
         return flag
 
@@ -219,6 +268,7 @@ class Robot:
         Args:
             movement (string): Next movement received (see Constants)
         """
+        self.stepCounter += 1
         self.movement.append(movement)
         if self.direction == NORTH:
             if movement == RIGHT:

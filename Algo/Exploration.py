@@ -25,7 +25,7 @@ class Exploration:
         timeLimit (int): Maximum time allowed for exploration
     """
 
-    def __init__(self, realMap=None, timeLimit=None, sim=True):
+    def __init__(self, realMap=None, timeLimit=None, calibrationLim=5, sim=True):
         """Constructor to initialise an instance of the Exploration class
 
         Args:
@@ -44,6 +44,8 @@ class Exploration:
             from Real import Robot
             self.robot = Robot(self.currentMap, NORTH, START)
         self.exploredNeighbours = dict()
+        self.sim = sim
+        self.calibrationLim = calibrationLim
 
     def __validInds(self, inds):
         """To check if the passed indices are valid or not
@@ -98,6 +100,11 @@ class Exploration:
             self.robot.moveBot(RIGHT)
             self.robot.moveBot(RIGHT)
             move.extend((RIGHT, RIGHT))
+        if not (self.sim):
+            calibrate = self.robot.can_calibrate()
+            if (calibrate[0] and self.robot.stepCounter > self.calibrationLim):
+                move.append(calibrate[1])
+                self.robot.stepCounter = 0
         return move
 
     def checkFree(self, order):
