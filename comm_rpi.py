@@ -29,13 +29,15 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-currentMap = np.ones([20, 15])
+currentMap = np.zeros([20, 15])
 
 # def loadMap():
 #     with open(os.path.join('Maps', 'map.txt')) as f:
 #         return np.genfromtxt(f, dtype=int, delimiter=1)
 
 # currentMap = loadMap()
+
+log_file = open('log.txt', 'w')
 
 area = 0
 exp = ''
@@ -340,6 +342,7 @@ class RPi(threading.Thread):
         while True:
             current_pos = None
             data = self.client_socket.recv(1024)
+            log_file.write(data+'\n')
             if (data):
                 print ('Received %s from RPi' % (data))
                 split_data = data.split("|")
@@ -351,6 +354,7 @@ class RPi(threading.Thread):
                     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                            START, GOAL, 0)
                 elif (split_data[0] == 'COMPUTE'):
+                    print currentMap
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
@@ -404,6 +408,7 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVEMENT', current_pos, move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
+                    log_file.write(get_msg+'\n')
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
                     fsp = FastestPath(currentMap, START, GOAL, NORTH,
@@ -414,6 +419,7 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVEMENT', current_pos, move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
+                    log_file.write(get_msg+'\n')
                 elif (split_data[0] == 'MANUAL'): # "MANUAL|18|1|EAST|W"
                     #assume where it is right now cuz they not sending the coordinates
                     manual_starting_coordinates = map(int, split_data[1:2]) 
