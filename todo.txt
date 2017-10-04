@@ -2,11 +2,6 @@
 	* No way to kill the program
 
 * comm_rpi.py
-	* calibrate command
-		- True whenever obstacles detected in front (all three front sensors detect three obstacles aligned)
-		- True after W_counter = 5, then reset counter
-
-	* Receive movement command from RPi for manual control, and update the robot position accordingly
 
 	* Front End have to synchronize with the back end (map explored, robot movement)
 

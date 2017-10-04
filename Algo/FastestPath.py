@@ -49,7 +49,7 @@ class FastestPath:
         waypoint (list): Coordinate of the way-point if specified
     """
 
-    def __init__(self, exploredMap, start, goal, direction, waypoint=None, sim=True):
+    def __init__(self, exploredMap, start, goal, direction, waypoint=None, calibrateLim=5, sim=True):
         """Constructor to initialize an instance of the FastestPath class
 
         Args:
@@ -68,6 +68,8 @@ class FastestPath:
         self.index = 1
         self.path = []
         self.movement = []
+        self.calibrateLim = calibrateLim
+        self.sim = sim
         if sim:
             from Simulator import Robot
             self.robot = Robot(self.exploredMap, direction, start, None)
@@ -268,4 +270,10 @@ class FastestPath:
             for move in movement:
                 self.robot.moveBot(move)
         self.movement.extend(movement)
+        if not (self.sim):
+            if (self.robot.stepCounter + len(movement) > self.calibrateLim):
+                calibrate = self.robot.can_calibrate()
+                if (calibrate[0]):
+                    movement.append(calibrate[1])
+                    self.robot.stepCounter = 0
         self.index += 1
