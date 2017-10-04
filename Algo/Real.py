@@ -60,14 +60,16 @@ class Robot:
             self.head = self.center + [0, -1]
 
     def getValue(self, inds, value, distance, sr):
+        value = round(value - 5, -1)
+        print value, distance
         vals = []
-        if (value >= distance):
+        if (value >= distance*10):
             vals = [1]*distance
         else:
-            val = round(value, -1)
-            val = int(value//10)
-            inds = inds[:val+1]
-            vals = [1]*val + [2]
+            value = int(value//10)
+            inds = inds[:value+1]
+            vals = [1]*value + [2]
+        print vals
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 if self.exploredMap[r][c] == 0:
@@ -84,7 +86,7 @@ class Robot:
         distanceShort = 3
         distanceLong = 5
         r, c = self.center
-        # sensor_vals = [FL_SR, FC_SR, FR_SR, RT_LR, RB_SR, LT_LR]
+        # sensor_vals = [FL_SR, FC_SR, FR_SR, RT_SR, RB_LR, LT_LR]
 
         # Front Left
         if self.direction == NORTH:
@@ -130,31 +132,31 @@ class Robot:
 
         # Right Top
         if self.direction == NORTH:
-            self.getValue(zip([r-1]*distanceLong, range(c+2, c+distanceLong+2)),
-                          sensor_vals[3], distanceLong, False)
+            self.getValue(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)),
+                          sensor_vals[3], distanceShort, False)
         elif self.direction == EAST:
-            self.getValue(zip(range(r+2, r+distanceLong+2), [c+1]*distanceLong),
-                          sensor_vals[3], distanceLong, False)
+            self.getValue(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort),
+                          sensor_vals[3], distanceShort, False)
         elif self.direction == WEST:
-            self.getValue(zip(range(r-distanceLong-1, r-1), [c-1]*distanceLong)[::-1],
-                          sensor_vals[3], distanceLong, False)
+            self.getValue(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1],
+                          sensor_vals[3], distanceShort, False)
         else:
-            self.getValue(zip([r+1]*distanceLong, range(c-distanceLong, c))[::-1],
-                          sensor_vals[3], distanceLong, False)
+            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort, c))[::-1],
+                          sensor_vals[3], distanceShort, False)
 
         # Right Bottom
         if self.direction == NORTH:
-            self.getValue(zip([r+1]*distanceShort, range(c+2, c+distanceShort+2)),
-                          sensor_vals[4], distanceShort, True)
+            self.getValue(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)),
+                          sensor_vals[4], distanceLong, True)
         elif self.direction == EAST:
-            self.getValue(zip(range(r+2, r+distanceShort+2), [c-1]*distanceShort),
-                          sensor_vals[4], distanceShort, True)
+            self.getValue(zip(range(r+2, r+distanceLong+2), [c-1]*distanceLong),
+                          sensor_vals[4], distanceLong, True)
         elif self.direction == WEST:
-            self.getValue(zip(range(r-distanceShort-1, r-1), [c+1]*distanceShort)[::-1],
-                          sensor_vals[4], distanceShort, True)
+            self.getValue(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1],
+                          sensor_vals[4], distanceLong, True)
         else:
-            self.getValue(zip([r-1]*distanceShort, range(c-distanceShort, c))[::-1],
-                          sensor_vals[4], distanceShort, True)
+            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong, c))[::-1],
+                          sensor_vals[4], distanceLong, True)
 
         # Left Top
         if self.direction == NORTH:
