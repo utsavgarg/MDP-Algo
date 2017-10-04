@@ -22,7 +22,6 @@ from tornado.options import define, options
 from Algo.Exploration import Exploration
 from Algo.FastestPath import FastestPath
 from Algo.Constants import START, GOAL, NORTH
-from Algo.Real import Robot
 
 __author__ = "Utsav Garg"
 
@@ -50,8 +49,6 @@ t_s = 0
 map_name = 'map.txt'
 
 step = 0.1
-
-
 
 
 class FuncThread(threading.Thread):
@@ -271,6 +268,20 @@ def markMap(curMap, waypoint):
     return curMap
 
 
+def combineMovement(movement):
+    counter = 0
+    shortMove = []
+    while (counter < len(movement)-3):
+        if (movement[counter] == 'W' and movement[counter+1] == 'W' and movement[counter+2] == 'W'):
+            shortMove.append('X')
+            counter += 3
+        else:
+            shortMove.append(movement[counter])
+            counter += 1
+    shortMove += movement[counter:]
+    return shortMove
+
+
 def fastestPath(fsp, goal, area, waypoint):
     fsp.getFastestPath()
     logger(json.dumps(fsp.path))
@@ -386,7 +397,7 @@ class RPi(threading.Thread):
                                         fsp = FastestPath(currentMap, exp.robot.center, neighbour,
                                                           exp.robot.direction, None)
                                         fastestPath(fsp, neighbour, exp.exploredArea, None, sim=False)
-                                        move.extend(fsp.movement)
+                                        move.extend(combineMovement(fsp.movement))
                                         exp.robot.center = neighbour
                                     else:
                                         break
@@ -400,7 +411,7 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        move.extend(fsp.movement)
+                        move.extend(combineMovement(fsp.movement))
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
@@ -411,7 +422,7 @@ class RPi(threading.Thread):
                                       waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
-                    move = fsp.movement
+                    move = combineMovement(fsp.movement)
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
@@ -420,7 +431,6 @@ class RPi(threading.Thread):
                     manual_movement = split_data[1:]
                     for move in manual_movement:
                         exp.robot.moveBot(move)
-                    
 
     def keep_main(self):
         while True:
@@ -442,19 +452,22 @@ app = web.Application([
     (r'/(.*)', web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), "GUI")})
 ], **settings)
 
+
 def rpi_connection():
-        print "starting rpi comm"
-        client_rpi = RPi()
-        rt = threading.Thread(target=client_rpi.receive_send)
-        rt.daemon = True
-        rt.start()
-        client_rpi.keep_main()
+    print "Starting communication with RPi"
+    client_rpi = RPi()
+    rt = threading.Thread(target=client_rpi.receive_send)
+    rt.daemon = True
+    rt.start()
+    client_rpi.keep_main()
+
 
 def front_end_connnection():
-        app.listen(options.port)
-        t1 = FuncThread(ioloop.IOLoop.instance().start)
-        t1.start()
-        t1.join()
+    print "Starting communication with front-end"
+    app.listen(options.port)
+    t1 = FuncThread(ioloop.IOLoop.instance().start)
+    t1.start()
+    t1.join()
 
 if __name__ == '__main__':
     p1 = Process(target=rpi_connection)
