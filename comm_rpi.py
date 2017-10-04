@@ -314,14 +314,11 @@ def logger(message):
         clients[key]['object'].write_message(json.dumps(log))
 
 
-def output_formatter(msg, start, movement):
-    if not isinstance(start, list):
-        start = start.tolist()
+def output_formatter(msg, movement):
     if not isinstance(movement, list):
         movement = movement.tolist()
-    start = map(str, start)
     movement = map(str, movement)
-    return msg+'|'+'|'.join(start)+'|'+'|'.join(movement)
+    return msg+'|'+'|'.join(movement)
 
 
 class RPi(threading.Thread):
@@ -354,7 +351,6 @@ class RPi(threading.Thread):
                     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                            START, GOAL, 0)
                 elif (split_data[0] == 'COMPUTE'):
-                    print currentMap
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
@@ -405,7 +401,7 @@ class RPi(threading.Thread):
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
                         move.extend(fsp.movement)
-                    get_msg = output_formatter('MOVEMENT', current_pos, move)
+                    get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write(get_msg+'\n')
@@ -416,18 +412,15 @@ class RPi(threading.Thread):
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
                     move = fsp.movement
-                    get_msg = output_formatter('MOVEMENT', current_pos, move)
+                    get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write(get_msg+'\n')
-                elif (split_data[0] == 'MANUAL'): # "MANUAL|18|1|EAST|W"
-                    #assume where it is right now cuz they not sending the coordinates
-                    manual_starting_coordinates = map(int, split_data[1:2]) 
-                    manual_starting_direction = split_data[3]
-                    manual_movement = split_data[4]
-                    # Set Robot Centre using manual_starting_coordinates
-                    # Set Starting Direction using manual_starting_direction
-                    # Move the Robot using moveBot function
+                elif (split_data[0] == 'MANUAL'):
+                    manual_movement = split_data[1:]
+                    for move in manual_movement:
+                        exp.robot.moveBot(move)
+                    
 
     def keep_main(self):
         while True:
