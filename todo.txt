@@ -3,17 +3,14 @@
 
 * comm_rpi.py
 	* calibrate command
-		- After 6 steps, check and reset
-		- If the obstacles are aligned, can calibrate
-		- If the obstacles are diagonal (sensor values are not the same), cannot calibrate
-		- If there are no obstacles, cannot calibrate
-		From Steffano:
-			every turn i need to calibrate
-			left turn, definitely calibrate
-			right turn maybe cannot
-			five times x needs to calibrate one time
-			15 to 20 W -> calibrate
-	* movement command from rpi for manual control
+		- True whenever obstacles detected in front (all three front sensors detect three obstacles aligned)
+		- True after W_counter = 5, then reset counter
+
+	* Receive movement command from RPi for manual control, and update the robot position accordingly
+
+	* Front End have to synchronize with the back end (map explored, robot movement)
+
+	* Send x and y coordinates of obstacles to RPi (for plotting the map on Android)
 
 * Exploration.py
 	* Test and fix bugs (if any)
@@ -28,4 +25,3 @@
 
 * custom.js
 	* does not print exploration started or fastest path started
-	
