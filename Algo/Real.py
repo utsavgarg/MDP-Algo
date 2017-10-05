@@ -62,7 +62,6 @@ class Robot:
 
     def getValue(self, inds, value, distance, sr):
         value = round(value - 5, -1)
-        print value, distance
         vals = []
         if (value >= distance*10):
             vals = [1]*distance
@@ -70,7 +69,6 @@ class Robot:
             value = int(value//10)
             inds = inds[:value+1]
             vals = [1]*value + [2]
-        print vals
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 if self.exploredMap[r][c] == 0:
@@ -177,87 +175,67 @@ class Robot:
         r, c = self.center
         flag = [False, None]
         if self.direction == NORTH:
-            print 'north'
             for i in range(2, 5):
                 if ((c + i) < MAX_COLS and (self.exploredMap[r-1, c+i] == 2 and
                    self.exploredMap[r+1, c+i] == 2)):
-                    print 'case1'
                     flag = [True, 'R']
                     break
                 elif ((c + i) == MAX_COLS):
-                    print 'case2'
                     flag = [True, 'R']
                     break
                 elif ((r - i) >= 0 and (self.exploredMap[r-i][c-1] == 2 and
                       self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
-                    print 'case3'
                     flag = [True, 'F']
                     break
                 elif ((r-i) < 0):
-                    print 'case4'
                     flag = [True, 'F']
                     break
         elif self.direction == WEST:
-            print 'west'
             for i in range(2, 5):
                 if ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
                    self.exploredMap[r-i, c+1] == 2)):
-                    print 'case1'
                     flag = [True, 'R']
                     break
                 elif ((r - i) < 0):
-                    print 'case2'
                     flag = [True, 'R']
                     break
                 elif ((c-i) >= 0 and (self.exploredMap[r-1][c-i] == 2 and
                       self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
-                    print 'case3'
                     flag = [True, 'F']
                     break
                 elif ((c-i) < 0):
-                    print 'case4'
                     flag = [True, 'F']
                     break
         elif self.direction == EAST:
             for i in range(2, 5):
-                print 'east'
                 if ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
                    self.exploredMap[r+i, c+1] == 2)):
-                    print 'case1'
                     flag = [True, 'R']
                     break
                 elif ((r + i) == MAX_ROWS):
-                    print 'case2'
                     flag = [True, 'R']
                     break
                 elif ((c + i) < MAX_COLS and (self.exploredMap[r-1][c+i] == 2 and
                       self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
-                    print 'case3'
                     flag = [True, 'F']
                     break
                 elif ((c + i) == MAX_COLS):
-                    print 'case4'
                     flag = [True, 'F']
                     break
         else:
             for i in range(2, 5):
-                print 'south'
                 if ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
                    self.exploredMap[r+1, c-i] == 2)):
-                    print 'case1'
                     flag = [True, 'R']
                     break
                 elif ((c-i) < 0):
-                    print 'case2'
                     flag = [True, 'R']
                     break
                 elif ((r+i) < MAX_ROWS and (self.exploredMap[r+i][c-1] == 2 and
                       self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
-                    print 'case3'
                     flag = [True, 'F']
                     break
                 elif ((r+i) == MAX_ROWS):
-                    print 'case4'
                     flag = [True, 'F']
                     break
         return flag

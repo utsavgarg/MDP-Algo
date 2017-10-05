@@ -414,8 +414,10 @@ class RPi(threading.Thread):
                         move.extend(combineMovement(fsp.movement))
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
+                    print ('Sent %s to RPi' % (get_msg))
                     get_msg = output_formatter('MDF', [str(exp.robot.descriptor_1()),
                                                str(exp.robot.descriptor_2())])
+                    self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write(get_msg+'\n')
                 elif (split_data[0] == 'FASTEST'):
