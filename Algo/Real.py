@@ -35,6 +35,7 @@ class Robot:
         self.exploredMap = exploredMap
         self.direction = direction
         self.center = np.asarray(start)
+        self.marked = np.zeros((20,15))
         self.setHead()
         self.movement = []
         self.markArea(start, 1)
@@ -72,8 +73,10 @@ class Robot:
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 if self.exploredMap[r][c] == 0:
+                    if (sr):
+                        self.marked[r][c] = 1
                     self.exploredMap[r][c] = vals[idx]
-                elif (sr):
+                elif (sr and self.marked[r][c] == 0):
                     self.exploredMap[r][c] = vals[idx]
 
     def getSensors(self, sensor_vals):
