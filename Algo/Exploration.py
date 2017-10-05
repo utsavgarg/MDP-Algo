@@ -25,7 +25,7 @@ class Exploration:
         timeLimit (int): Maximum time allowed for exploration
     """
 
-    def __init__(self, realMap=None, timeLimit=None, calibrateLim=5, sim=True):
+    def __init__(self, realMap=None, timeLimit=None, calibrateLim=6, sim=True):
         """Constructor to initialise an instance of the Exploration class
 
         Args:
