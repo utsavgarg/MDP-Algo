@@ -30,11 +30,12 @@ define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
 currentMap = np.zeros([20, 15])
 
+
 # def loadMap():
 #     with open(os.path.join('Maps', 'map.txt')) as f:
 #         return np.genfromtxt(f, dtype=int, delimiter=1)
 
-# currentMap = loadMap()
+#  currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
@@ -351,6 +352,7 @@ class RPi(threading.Thread):
             current_pos = None
             data = self.client_socket.recv(1024)
             log_file.write(data+'\n')
+            log_file.flush()
             if (data):
                 print ('Received %s from RPi' % (data))
                 split_data = data.split("|")
@@ -415,11 +417,12 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
+                    log_file.write('Sent %s to RPi\n' % (get_msg))
+                    log_file.flush()
                     get_msg = output_formatter('MDF', [str(exp.robot.descriptor_1()),
                                                str(exp.robot.descriptor_2())])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
-                    log_file.write(get_msg+'\n')
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
                     fsp = FastestPath(currentMap, START, GOAL, NORTH,
@@ -430,7 +433,6 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
-                    log_file.write(get_msg+'\n')
                 elif (split_data[0] == 'MANUAL'):
                     manual_movement = split_data[1:]
                     for move in manual_movement:
