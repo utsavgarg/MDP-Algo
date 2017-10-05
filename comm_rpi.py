@@ -459,7 +459,7 @@ app = web.Application([
 ], **settings)
 
 
-def rpi_connection():
+def func1():
     print "Starting communication with RPi"
     client_rpi = RPi()
     rt = threading.Thread(target=client_rpi.receive_send)
@@ -468,7 +468,7 @@ def rpi_connection():
     client_rpi.keep_main()
 
 
-def front_end_connnection():
+def func2():
     print "Starting communication with front-end"
     app.listen(options.port)
     t1 = FuncThread(ioloop.IOLoop.instance().start)
@@ -476,9 +476,5 @@ def front_end_connnection():
     t1.join()
 
 if __name__ == '__main__':
-    p1 = Process(target=rpi_connection)
-    p2 = Process(target=front_end_connnection)
-    p1.start()
-    p2.start()
-    p1.join()
-    p2.join()
+    Thread(target = func1).start()
+    Thread(target = func2).start()
