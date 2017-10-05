@@ -372,6 +372,7 @@ class RPi(threading.Thread):
                         move = current[0]
                         currentMap = exp.currentMap
                         elapsedTime = round(time.time()-t_s, 2)
+                        print move, exp.robot.center
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
                         steps += 1

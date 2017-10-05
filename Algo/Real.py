@@ -190,9 +190,9 @@ class Robot:
                 #       self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
                 #     flag = [True, 'F']
                 #     break
-                elif ((r-i) < 0):
-                    flag = [True, 'F']
-                    break
+                # elif ((r-i) < 0):
+                #     flag = [True, 'F']
+                #     break
         elif self.direction == WEST:
             for i in range(2, 5):
                 # if ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
@@ -206,9 +206,9 @@ class Robot:
                 #       self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
                 #     flag = [True, 'F']
                 #     break
-                elif ((c-i) < 0):
-                    flag = [True, 'F']
-                    break
+                # elif ((c-i) < 0):
+                #     flag = [True, 'F']
+                #     break
         elif self.direction == EAST:
             for i in range(2, 5):
                 # if ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
@@ -222,9 +222,9 @@ class Robot:
                 #       self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
                 #     flag = [True, 'F']
                 #     break
-                elif ((c + i) == MAX_COLS):
-                    flag = [True, 'F']
-                    break
+                # elif ((c + i) == MAX_COLS):
+                #     flag = [True, 'F']
+                #     break
         else:
             for i in range(2, 5):
                 # if ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
@@ -238,9 +238,9 @@ class Robot:
                 #       self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
                 #     flag = [True, 'F']
                 #     break
-                elif ((r+i) == MAX_ROWS):
-                    flag = [True, 'F']
-                    break
+                # elif ((r+i) == MAX_ROWS):
+                #     flag = [True, 'F']
+                #     break
         return flag
 
     def moveBot(self, movement):
