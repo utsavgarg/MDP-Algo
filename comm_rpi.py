@@ -416,6 +416,8 @@ class RPi(threading.Thread):
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
                         move.extend(combineMovement(fsp.movement))
+                    if not ('W' in move):
+                        move.append('S')    
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))

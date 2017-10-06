@@ -3,7 +3,7 @@
 """
 import numpy as np
 
-from Constants import MAX_ROWS, MAX_COLS, NORTH, SOUTH, EAST, WEST, RIGHT, LEFT
+from Constants import MAX_ROWS, MAX_COLS, NORTH, SOUTH, EAST, WEST, RIGHT, LEFT, BOTTOM_LEFT_CORNER, BOTTOM_RIGHT_CORNER, TOP_RIGHT_CORNER, TOP_LEFT_CORNER
 
 __author__ = "Utsav Garg"
 
@@ -89,7 +89,7 @@ class Robot:
             Numpy array of Numpy arrays: Sensor values from all sensors
         """
         distanceShort = 2
-        distanceLong = 5
+        distanceLong = 4
         r, c = self.center
         # sensor_vals = [FL_SR, FC_SR, FR_SR, RT_SR, RB_LR, LT_LR]
 
@@ -177,73 +177,92 @@ class Robot:
             self.getValue(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)),
                           sensor_vals[5], distanceLong, False)
 
+    def is_corner(self):
+        corners = [BOTTOM_LEFT_CORNER.tolist(), BOTTOM_RIGHT_CORNER.tolist(), TOP_RIGHT_CORNER.tolist(), TOP_LEFT_CORNER.tolist()]
+        if self.center.tolist() in corners:
+            return True
+        else:
+            return False
+
     def can_calibrate(self):
         r, c = self.center
         flag = [False, None]
         if self.direction == NORTH:
             for i in range(2, 5):
-                # if ((c + i) < MAX_COLS and (self.exploredMap[r-1, c+i] == 2 and
-                #    self.exploredMap[r+1, c+i] == 2)):
-                #     flag = [True, 'R']
-                #     break
                 if ((c + i) == MAX_COLS):
+                    if self.is_corner():
+                        flag = [True, ['R', 'T', 'R']]
+                    else:
+                        flag = [True, 'R']
+                    break
+                elif ((r-i) < 0):
+                    flag = [True, 'F']
+                    break
+                elif ((c + i) < MAX_COLS and (self.exploredMap[r-1, c+i] == 2 and
+                   self.exploredMap[r+1, c+i] == 2)):
                     flag = [True, 'R']
                     break
-                # elif ((r - i) >= 0 and (self.exploredMap[r-i][c-1] == 2 and
-                #       self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
-                #     flag = [True, 'F']
-                #     break
-                # elif ((r-i) < 0):
-                #     flag = [True, 'F']
-                #     break
+                elif ((r - i) >= 0 and (self.exploredMap[r-i][c-1] == 2 and
+                      self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
+                    flag = [True, 'F']
+                    break
         elif self.direction == WEST:
             for i in range(2, 5):
-                # if ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
-                #    self.exploredMap[r-i, c+1] == 2)):
-                #     flag = [True, 'R']
-                #     break
                 if ((r - i) < 0):
+                    if self.is_corner():
+                        flag = [True, ['R', 'T', 'R']]
+                    else:
+                        flag = [True, 'R']
+                    break
+                elif ((c-i) < 0):
+                    flag = [True, 'F']
+                    break
+                elif ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
+                   self.exploredMap[r-i, c+1] == 2)):
                     flag = [True, 'R']
                     break
-                # elif ((c-i) >= 0 and (self.exploredMap[r-1][c-i] == 2 and
-                #       self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
-                #     flag = [True, 'F']
-                #     break
-                # elif ((c-i) < 0):
-                #     flag = [True, 'F']
-                #     break
+                elif ((c-i) >= 0 and (self.exploredMap[r-1][c-i] == 2 and
+                      self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
+                    flag = [True, 'F']
+                    break
         elif self.direction == EAST:
             for i in range(2, 5):
-                # if ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
-                #    self.exploredMap[r+i, c+1] == 2)):
-                #     flag = [True, 'R']
-                #     break
                 if ((r + i) == MAX_ROWS):
+                    if self.is_corner():
+                        flag = [True, ['R', 'T', 'R']]
+                    else:
+                        flag = [True, 'R']
+                    break
+                elif ((c + i) == MAX_COLS):
+                    flag = [True, 'F']
+                    break
+                elif ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
+                   self.exploredMap[r+i, c+1] == 2)):
                     flag = [True, 'R']
                     break
-                # elif ((c + i) < MAX_COLS and (self.exploredMap[r-1][c+i] == 2 and
-                #       self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
-                #     flag = [True, 'F']
-                #     break
-                # elif ((c + i) == MAX_COLS):
-                #     flag = [True, 'F']
-                #     break
+                elif ((c + i) < MAX_COLS and (self.exploredMap[r-1][c+i] == 2 and
+                      self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
+                    flag = [True, 'F']
+                    break
         else:
             for i in range(2, 5):
-                # if ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
-                #    self.exploredMap[r+1, c-i] == 2)):
-                #     flag = [True, 'R']
-                #     break
                 if ((c-i) < 0):
+                    if self.is_corner():
+                        flag = [True, ['R', 'T', 'R']]
+                    else:
+                        flag = [True, 'R']
+                    break
+                elif ((r+i) == MAX_ROWS):
+                    flag = [True, 'F']
+                    break
+                elif ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
+                   self.exploredMap[r+1, c-i] == 2)):
                     flag = [True, 'R']
                     break
-                # elif ((r+i) < MAX_ROWS and (self.exploredMap[r+i][c-1] == 2 and
-                #       self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
-                #     flag = [True, 'F']
-                #     break
-                # elif ((r+i) == MAX_ROWS):
-                #     flag = [True, 'F']
-                #     break
+                elif ((r+i) < MAX_ROWS and (self.exploredMap[r+i][c-1] == 2 and
+                      self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
+                    flag = [True, 'F']
+                    break
         return flag
 
     def moveBot(self, movement):
