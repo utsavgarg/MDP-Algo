@@ -419,7 +419,8 @@ class RPi(threading.Thread):
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
-                    log_file.write('Sent %s to RPi\n' % (get_msg))
+                    log_file.write('Robot Center: %s' % (str(exp.robot.center)))
+                    log_file.write('\nSent %s to RPi\n' % (get_msg))
                     log_file.flush()
                     get_msg = output_formatter('MDF', [str(exp.robot.descriptor_1()),
                                                str(exp.robot.descriptor_2())])
