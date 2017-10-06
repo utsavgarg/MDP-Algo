@@ -72,14 +72,15 @@ class Robot:
             vals = [1]*value + [2]
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
-                if self.exploredMap[r][c] == 2:
-                    break
-                if self.exploredMap[r][c] == 0:
+                if self.marked[r][c] == 0:
                     if (sr):
-                        self.marked[r][c] = 1
-                    self.exploredMap[r][c] = vals[idx]
-                elif (sr and self.marked[r][c] == 0):
-                    self.exploredMap[r][c] = vals[idx]
+                            self.marked[r][c] = 1
+                    if self.exploredMap[r][c] == 2:
+                        break
+                    if self.exploredMap[r][c] == 0:
+                        self.exploredMap[r][c] = vals[idx]
+                    elif (sr and self.marked[r][c] == 0):
+                        self.exploredMap[r][c] = vals[idx]
 
     def getSensors(self, sensor_vals):
         """Generated indices to get values from sensors and gets the values using getValue() function.
