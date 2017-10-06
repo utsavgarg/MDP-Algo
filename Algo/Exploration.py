@@ -101,14 +101,19 @@ class Exploration:
             self.robot.moveBot(RIGHT)
             move.extend((RIGHT, RIGHT))
         if not (self.sim):
-            calibrate = self.robot.can_calibrate()
-            if isinstance(calibrate[1], list):
-                    move.extend(calibrate[1])
-                    self.robot.stepCounter = 0
-            elif (calibrate[0] and self.robot.stepCounter > self.calibrateLim):
-                if isinstance(calibrate[1], list):
-                    move.append(calibrate[1])
-                    self.robot.stepCounter = 0
+            calibrate_front = self.robot.can_calibrate_front()
+            calibrate_right = self.robot.can_calibrate_right()
+            if (calibrate_front[0]):
+                move.append(calibrate_front[1])
+                self.robot.stepCounter = 0
+            elif (calibrate_right[0]):
+                if isinstance(calibrate_right[1], list):
+                        move.extend(calibrate_right[1])
+                        self.robot.stepCounter = 0
+                elif (self.robot.stepCounter > self.calibrateLim):
+                    if isinstance(calibrate_right[1], list):
+                        move.append(calibrate_right[1])
+                        self.robot.stepCounter = 0
         return move
 
     def checkFree(self, order):
