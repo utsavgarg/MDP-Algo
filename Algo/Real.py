@@ -35,7 +35,7 @@ class Robot:
         self.exploredMap = exploredMap
         self.direction = direction
         self.center = np.asarray(start)
-        self.marked = np.zeros((20,15))
+        self.marked = np.zeros((20, 15))
         self.setHead()
         self.movement = []
         self.markArea(start, 1)
@@ -72,6 +72,8 @@ class Robot:
             vals = [1]*value + [2]
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
+                if self.exploredMap[r][c] == 2:
+                    break
                 if self.exploredMap[r][c] == 0:
                     if (sr):
                         self.marked[r][c] = 1
