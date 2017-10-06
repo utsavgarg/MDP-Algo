@@ -102,12 +102,13 @@ class Exploration:
             move.extend((RIGHT, RIGHT))
         if not (self.sim):
             calibrate = self.robot.can_calibrate()
-            if (calibrate[0] and self.robot.stepCounter > self.calibrateLim):
-                if isinstance(calibrate[1], list):
+            if isinstance(calibrate[1], list):
                     move.extend(calibrate[1])
-                else:
+                    self.robot.stepCounter = 0
+            elif (calibrate[0] and self.robot.stepCounter > self.calibrateLim):
+                if isinstance(calibrate[1], list):
                     move.append(calibrate[1])
-                self.robot.stepCounter = 0
+                    self.robot.stepCounter = 0
         return move
 
     def checkFree(self, order):
