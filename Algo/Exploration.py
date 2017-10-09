@@ -42,7 +42,7 @@ class Exploration:
             self.sensors = self.robot.getSensors()
         else:
             from Real import Robot
-            self.robot = Robot(self.currentMap, EAST, START)
+            self.robot = Robot(self.currentMap, NORTH, START)
         self.exploredNeighbours = dict()
         self.sim = sim
         self.calibrateLim = calibrateLim
@@ -103,6 +103,7 @@ class Exploration:
         if not (self.sim):
             calibrate_front = self.robot.can_calibrate_front()
             calibrate_right = self.robot.can_calibrate_right()
+            print calibrate_right, calibrate_front
             if (calibrate_front[0]):
                 move.append(calibrate_front[1])
                 self.robot.stepCounter = 0
@@ -111,7 +112,6 @@ class Exploration:
                         move.extend(calibrate_right[1])
                         self.robot.stepCounter = 0
                 elif (self.robot.stepCounter > self.calibrateLim):
-                    if isinstance(calibrate_right[1], list):
                         move.append(calibrate_right[1])
                         self.robot.stepCounter = 0
         return move
