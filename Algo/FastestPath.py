@@ -270,10 +270,10 @@ class FastestPath:
             for move in movement:
                 self.robot.moveBot(move)
         self.movement.extend(movement)
-        if not (self.sim):
-            if (self.robot.stepCounter + len(movement) > self.calibrateLim):
-                calibrate = self.robot.can_calibrate()
-                if (calibrate[0]):
-                    movement.append(calibrate[1])
-                    self.robot.stepCounter = 0
+        # if not (self.sim):
+        #     if (self.robot.stepCounter + len(movement) > self.calibrateLim):
+        #         calibrate = self.robot.can_calibrate()
+        #         if (calibrate[0]):
+        #             movement.append(calibrate[1])
+        #             self.robot.stepCounter = 0
         self.index += 1

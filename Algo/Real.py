@@ -62,6 +62,7 @@ class Robot:
             self.head = self.center + [0, -1]
 
     def getValue(self, inds, value, distance, sr):
+        print inds
         value = round(value - 5, -1)
         vals = []
         if (value >= distance*10):
@@ -101,7 +102,7 @@ class Robot:
             self.getValue(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)),
                           sensor_vals[0], distanceShort, True)
         elif self.direction == WEST:
-            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort, c))[::-1],
+            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
                           sensor_vals[0], distanceShort, True)
         else:
             self.getValue(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort),
@@ -115,7 +116,7 @@ class Robot:
             self.getValue(zip([r]*distanceShort, range(c+2, c+distanceShort+2)),
                           sensor_vals[1], distanceShort, True)
         elif self.direction == WEST:
-            self.getValue(zip([r]*distanceShort, range(c-distanceShort, c))[::-1],
+            self.getValue(zip([r]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
                           sensor_vals[1], distanceShort, True)
         else:
             self.getValue(zip(range(r+2, r+distanceShort+2), [c]*distanceShort),
@@ -129,7 +130,7 @@ class Robot:
             self.getValue(zip([r+1]*distanceShort, range(c+2, c+distanceShort+2)),
                           sensor_vals[2], distanceShort, True)
         elif self.direction == WEST:
-            self.getValue(zip([r-1]*distanceShort, range(c-distanceShort, c))[::-1],
+            self.getValue(zip([r-1]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
                           sensor_vals[2], distanceShort, True)
         else:
             self.getValue(zip(range(r+2, r+distanceShort+2), [c-1]*distanceShort),
@@ -146,7 +147,7 @@ class Robot:
             self.getValue(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1],
                           sensor_vals[3], distanceShort, False)
         else:
-            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort, c))[::-1],
+            self.getValue(zip([r+1]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
                           sensor_vals[3], distanceShort, False)
 
         # Right Bottom
@@ -160,12 +161,12 @@ class Robot:
             self.getValue(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1],
                           sensor_vals[4], distanceLong, True)
         else:
-            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong, c))[::-1],
+            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong-1, c-1))[::-1],
                           sensor_vals[4], distanceLong, True)
 
         # Left Top
         if self.direction == NORTH:
-            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong, c))[::-1],
+            self.getValue(zip([r-1]*distanceLong, range(c-distanceLong-1, c-1))[::-1],
                           sensor_vals[5], distanceLong, False)
         elif self.direction == EAST:
             self.getValue(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1],
@@ -178,7 +179,8 @@ class Robot:
                           sensor_vals[5], distanceLong, False)
 
     def is_corner(self):
-        corners = [BOTTOM_LEFT_CORNER.tolist(), BOTTOM_RIGHT_CORNER.tolist(), TOP_RIGHT_CORNER.tolist(), TOP_LEFT_CORNER.tolist()]
+        corners = [BOTTOM_LEFT_CORNER.tolist(), BOTTOM_RIGHT_CORNER.tolist(),
+                   TOP_RIGHT_CORNER.tolist(), TOP_LEFT_CORNER.tolist()]
         if self.center.tolist() in corners:
             return True
         else:
@@ -231,10 +233,7 @@ class Robot:
         if self.direction == NORTH:
             for i in range(2, 3):
                 if ((c + i) == MAX_COLS):
-                    if self.is_corner():
-                        flag = [True, ['R', 'T', 'R']]
-                    else:
-                        flag = [True, 'R']
+                    flag = [True, 'R']
                     break
                 elif ((c + i) < MAX_COLS and (self.exploredMap[r-1, c+i] == 2 and
                       self.exploredMap[r+1, c+i] == 2)):
@@ -243,10 +242,7 @@ class Robot:
         elif self.direction == WEST:
             for i in range(2, 3):
                 if ((r - i) < 0):
-                    if self.is_corner():
-                        flag = [True, ['R', 'T', 'R']]
-                    else:
-                        flag = [True, 'R']
+                    flag = [True, 'R']
                     break
                 elif ((r - i) >= 0 and (self.exploredMap[r-i, c-1] == 2 and
                       self.exploredMap[r-i, c+1] == 2)):
@@ -255,10 +251,7 @@ class Robot:
         elif self.direction == EAST:
             for i in range(2, 3):
                 if ((r + i) == MAX_ROWS):
-                    if self.is_corner():
-                        flag = [True, ['R', 'T', 'R']]
-                    else:
-                        flag = [True, 'R']
+                    flag = [True, 'R']
                     break
                 elif ((r + i) < MAX_ROWS and (self.exploredMap[r+i, c-1] == 2 and
                       self.exploredMap[r+i, c+1] == 2)):
@@ -267,10 +260,7 @@ class Robot:
         else:
             for i in range(2, 3):
                 if ((c-i) < 0):
-                    if self.is_corner():
-                        flag = [True, ['R', 'T', 'R']]
-                    else:
-                        flag = [True, 'R']
+                    flag = [True, 'R']
                     break
                 elif ((c - i) >= 0 and (self.exploredMap[r-1, c-i] == 2 and
                       self.exploredMap[r+1, c-i] == 2)):

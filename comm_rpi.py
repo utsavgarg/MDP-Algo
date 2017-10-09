@@ -362,6 +362,7 @@ class RPi(threading.Thread):
                     t_s = time.time()
                     exp = Exploration(sim=False)
                     current_pos = exp.robot.center
+                    visited[tuple(current_pos)] = 1
                     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                            START, GOAL, 0)
                 elif (split_data[0] == 'COMPUTE'):
@@ -376,10 +377,10 @@ class RPi(threading.Thread):
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
                         steps += 1
-                        currentPos = tuple(exp.robot.center)
-                        if (currentPos in visited):
-                            visited[currentPos] += 1
-                            if (visited[currentPos] > 2):
+                        current_pos = tuple(exp.robot.center)
+                        if (current_pos in visited):
+                            visited[current_pos] += 1
+                            if (visited[current_pos] > 2):
                                 neighbour = exp.getExploredNeighbour()
                                 if (neighbour):
                                     neighbour = np.asarray(neighbour)
@@ -391,7 +392,7 @@ class RPi(threading.Thread):
                                 else:
                                     break
                             else:
-                                visited[currentPos] = 1
+                                visited[current_pos] = 1
                             if (np.array_equal(exp.robot.center, START)):
                                 numCycle += 1
                                 if (numCycle > 1 and steps > 4):
@@ -399,9 +400,10 @@ class RPi(threading.Thread):
                                     if (neighbour):
                                         neighbour = np.asarray(neighbour)
                                         fsp = FastestPath(currentMap, exp.robot.center, neighbour,
-                                                          exp.robot.direction, None)
-                                        fastestPath(fsp, neighbour, exp.exploredArea, None, sim=False)
-                                        move.extend(combineMovement(fsp.movement))
+                                                          exp.robot.direction, None, sim=False)
+                                        fastestPath(fsp, neighbour, exp.exploredArea, None)
+                                        # move.extend(combineMovement(fsp.movement))
+                                        move.extend(fsp.movement)
                                         exp.robot.center = neighbour
                                     else:
                                         break
@@ -415,10 +417,12 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        move.extend(combineMovement(fsp.movement))
+                        # move.extend(combineMovement(fsp.movement))
+                        move.extend(fsp.movement)
                     if not ('W' in move):
-                        move.append('S')    
-                    get_msg = output_formatter('MOVEMENT', move)
+                        move.append('S')
+                    get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                               str(exp.robot.descriptor_2())] + move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
@@ -427,17 +431,14 @@ class RPi(threading.Thread):
                     # log_file.write('\n')
                     log_file.write('Sent %s to RPi\n\n' % (get_msg))
                     log_file.flush()
-                    get_msg = output_formatter('MDF', [str(exp.robot.descriptor_1()),
-                                               str(exp.robot.descriptor_2())])
-                    self.client_socket.send(get_msg)
-                    print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
                     fsp = FastestPath(currentMap, START, GOAL, NORTH,
                                       waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
-                    move = combineMovement(fsp.movement)
+                    move = fsp.movement
+                    # move = combineMovementeMovement(fsp.movement)
                     get_msg = output_formatter('MOVEMENT', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
