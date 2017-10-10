@@ -29,14 +29,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-currentMap = np.zeros([20, 15])
+# currentMap = np.zeros([20, 15])
 
 
-# def loadMap():
-#     with open(os.path.join('Maps', 'map.txt')) as f:
-#         return np.genfromtxt(f, dtype=int, delimiter=1)
+def loadMap():
+    with open(os.path.join('Maps', 'map.txt')) as f:
+        return np.genfromtxt(f, dtype=int, delimiter=1)
 
-#  currentMap = loadMap()
+currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
@@ -144,7 +144,6 @@ class ResetHandler(web.RequestHandler):
         self.write("Reset...")
         global exp
         exp = Exploration(map_name, 5)
-        print exp.currentMap
         update(np.zeros([20, 15]), exp.exploredArea, exp.robot.center, exp.robot.head,
                START, GOAL, 0)
 
@@ -285,14 +284,15 @@ def combineMovement(movement):
 
 
 def fastestPath(fsp, goal, area, waypoint):
+    waypoint[0] = 19 - waypoint[0]
     fsp.getFastestPath()
     logger(json.dumps(fsp.path))
     while (fsp.robot.center.tolist() != goal.tolist()):
         fsp.moveStep()
-        elapsedTime = round(time.time()-t_s, 2)
-        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
-               START, GOAL, elapsedTime)
-        time.sleep(step)
+        # elapsedTime = round(time.time()-t_s, 2)
+        # update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
+        #        START, GOAL, elapsedTime)
+        # time.sleep(step)
     logger('Fastest Path Done !')
 
 
@@ -373,7 +373,6 @@ class RPi(threading.Thread):
                         move = current[0]
                         currentMap = exp.currentMap
                         elapsedTime = round(time.time()-t_s, 2)
-                        print move, exp.robot.center
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
                         steps += 1
@@ -419,10 +418,8 @@ class RPi(threading.Thread):
                         fastestPath(fsp, START, exp.exploredArea, None)
                         # move.extend(combineMovement(fsp.movement))
                         move.extend(fsp.movement)
-                    if not ('W' in move):
-                        move.append('S')
                     get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
-                                               str(exp.robot.descriptor_2())] + move)
+                                               str(exp.robot.descriptor_2())] + move + ['S'])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
@@ -433,13 +430,13 @@ class RPi(threading.Thread):
                     log_file.flush()
                 elif (split_data[0] == 'FASTEST'):
                     waypoint = map(int, split_data[1:])
-                    fsp = FastestPath(currentMap, START, GOAL, NORTH,
+                    fsp = FastestPath(currentMap, START, GOAL, 2,
                                       waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
-                    move = fsp.movement
-                    # move = combineMovementeMovement(fsp.movement)
-                    get_msg = output_formatter('MOVEMENT', move)
+                    # move = fsp.movement
+                    move = combineMovement(fsp.movement)
+                    get_msg = output_formatter('FASTEST', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'):

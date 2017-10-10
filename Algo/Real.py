@@ -62,7 +62,6 @@ class Robot:
             self.head = self.center + [0, -1]
 
     def getValue(self, inds, value, distance, sr):
-        print inds
         value = round(value - 5, -1)
         vals = []
         if (value >= distance*10):
@@ -75,13 +74,13 @@ class Robot:
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 if self.marked[r][c] == 0:
                     if (sr):
-                            self.marked[r][c] = 1
-                    if self.exploredMap[r][c] == 2:
-                        break
-                    if self.exploredMap[r][c] == 0:
-                        self.exploredMap[r][c] = vals[idx]
-                    elif (sr and self.marked[r][c] == 0):
-                        self.exploredMap[r][c] = vals[idx]
+                        self.marked[r][c] = 1
+                if self.exploredMap[r][c] == 2:
+                    break
+                if self.exploredMap[r][c] == 0:
+                    self.exploredMap[r][c] = vals[idx]
+                elif (sr and self.marked[r][c] == 0):
+                    self.exploredMap[r][c] = vals[idx]
 
     def getSensors(self, sensor_vals):
         """Generated indices to get values from sensors and gets the values using getValue() function.
