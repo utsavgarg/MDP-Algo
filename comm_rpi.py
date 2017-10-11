@@ -284,7 +284,8 @@ def combineMovement(movement):
 
 
 def fastestPath(fsp, goal, area, waypoint):
-    waypoint[0] = 19 - waypoint[0]
+    if waypoint:
+        waypoint[0] = 19 - waypoint[0]
     fsp.getFastestPath()
     logger(json.dumps(fsp.path))
     while (fsp.robot.center.tolist() != goal.tolist()):
@@ -379,7 +380,7 @@ class RPi(threading.Thread):
                         current_pos = tuple(exp.robot.center)
                         if (current_pos in visited):
                             visited[current_pos] += 1
-                            if (visited[current_pos] > 2):
+                            if (visited[current_pos] > 3):
                                 neighbour = exp.getExploredNeighbour()
                                 if (neighbour):
                                     neighbour = np.asarray(neighbour)
@@ -406,6 +407,8 @@ class RPi(threading.Thread):
                                         exp.robot.center = neighbour
                                     else:
                                         break
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + move + ['S'])
                     else:
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
@@ -416,10 +419,10 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        # move.extend(combineMovement(fsp.movement))
-                        move.extend(fsp.movement)
-                    get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
-                                               str(exp.robot.descriptor_2())] + move + ['S'])
+                        move.extend(combineMovement(fsp.movement))
+                        # move.extend(fsp.movement)
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + move + ['L'])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))

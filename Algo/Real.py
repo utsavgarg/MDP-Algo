@@ -72,12 +72,13 @@ class Robot:
             vals = [1]*value + [2]
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
-                if self.marked[r][c] == 0:
-                    if (sr):
-                        self.marked[r][c] = 1
-                if self.exploredMap[r][c] == 2:
+                if (sr):
+                    self.marked[r][c] += 1
+                if (self.exploredMap[r][c] == 2 and sr and vals[idx] == 1 and self.marked[r][c] < 3):
+                    self.exploredMap[r][c] = vals[idx]
+                elif self.exploredMap[r][c] == 2:
                     break
-                if self.exploredMap[r][c] == 0:
+                elif self.exploredMap[r][c] == 0:
                     self.exploredMap[r][c] = vals[idx]
                 elif (sr and self.marked[r][c] == 0):
                     self.exploredMap[r][c] = vals[idx]
