@@ -247,7 +247,6 @@ class RPi(threading.Thread):
                     waypoint = map(int, split_data[1:])
                     waypoint[0] = 19 - waypoint[0]
                 elif (split_data[0] == 'COMPUTE'):
-                    print numCycle
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
@@ -273,9 +272,12 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        move.extend(combineMovement(fsp.movement))
-                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
-                                                   str(exp.robot.descriptor_2())] + move + ['L'])
+                        print fsp.path
+                        print currentMap
+                        print 'move', move, exp.robot.direction, exp.robot.center
+                        move = combineMovement(fsp.movement)
+                        get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + ['N'] + move + ['L'])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
