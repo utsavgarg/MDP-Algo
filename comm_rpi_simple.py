@@ -17,12 +17,11 @@ import tornado.websocket as websocket
 import tornado.ioloop as ioloop
 import threading
 from threading import Thread
-from multiprocessing import Process
 
 from tornado.options import define, options
 from Algo.Exploration import Exploration
 from Algo.FastestPath import FastestPath
-from Algo.Constants import START, GOAL, NORTH
+from Algo.Constants import START, GOAL, NORTH, WEST
 
 __author__ = "Utsav Garg"
 
@@ -48,6 +47,7 @@ steps = 0
 numCycle = 1
 t_s = 0
 waypoint = None
+direction = 1
 
 map_name = 'map.txt'
 
@@ -263,6 +263,15 @@ class RPi(threading.Thread):
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + move + ['S'])
                     else:
+                        move = current[0]
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + move)
+                        self.client_socket.send(get_msg)
+                        print ('Sent %s to RPi' % (get_msg))
+                        log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
+                        log_file.write('Sent %s to RPi\n\n' % (get_msg))
+                        log_file.flush()
+                        time.sleep(2)
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
                         logger('Exploration Done !')
@@ -275,19 +284,26 @@ class RPi(threading.Thread):
                         print fsp.path
                         print currentMap
                         print 'move', move, exp.robot.direction, exp.robot.center
-                        move = combineMovement(fsp.movement)
+                        move = fsp.movement
+                        global direction
+                        if (fsp.robot.direction == WEST):
+                            calibrate_move = ['A', 'L', 'D', 'D']
+                        else:
+                            calibrate_move = ['L', 'D', 'D']
+                        direction = NORTH
                         get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
-                                                   str(exp.robot.descriptor_2())] + ['N'] + move + ['L'])
+                                                   str(exp.robot.descriptor_2())] + ['N'] + move +
+                                                   calibrate_move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
                     log_file.write('Sent %s to RPi\n\n' % (get_msg))
                     log_file.flush()
                 elif (split_data[0] == 'FASTEST'):
-                    fsp = FastestPath(currentMap, START, GOAL, 4, waypoint, sim=False)
+                    fsp = FastestPath(currentMap, START, GOAL, direction, waypoint, sim=False)
                     current_pos = fsp.robot.center
-                    fastestPath(fsp, GOAL, 300, waypoint)
-                    move = combineMovement(fsp.movement)
+                    fastestPath(fsp, GOAL, 100, waypoint)
+                    move = fsp.movement
                     get_msg = output_formatter('FASTEST', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
