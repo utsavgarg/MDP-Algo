@@ -170,6 +170,8 @@ def fastestPath(fsp, goal, area, waypoint):
     logger(json.dumps(fsp.path))
     while (fsp.robot.center.tolist() != goal.tolist()):
         fsp.moveStep()
+        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
+               START, GOAL, 0)
     logger('Fastest Path Done !')
 
 
