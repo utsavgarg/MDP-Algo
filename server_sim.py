@@ -26,7 +26,7 @@ define("port", default=8888, help="run on the given port", type=int)
 
 clients = dict()
 
-currentMap = np.ones([20, 15])
+currentMap = np.zeros([20, 15])
 map_name = 'map.txt'
 
 area = 0

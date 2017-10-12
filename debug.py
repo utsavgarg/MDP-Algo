@@ -16,7 +16,7 @@ exp = Exploration(sim=False)
 current_pos = exp.robot.center
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|35|60|4"
+data = "COMPUTE|24|35|35|4|3|58"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -25,7 +25,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|5|5|35"
+data = "COMPUTE|15|25|35|4|5|16"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -34,7 +34,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|4|5|60"
+data = "COMPUTE|0|14|35|3|3|6"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -43,7 +43,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|5|5|60"
+data = "COMPUTE|24|25|24|35|6|4"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -52,7 +52,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|4|5|60"
+data = "COMPUTE|15|15|14|35|16|3"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -61,7 +61,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|4|5|60"
+data = "COMPUTE|35|35|6|5|25|14"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -70,7 +70,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|27|28|26|4|5|60"
+data = "COMPUTE|0|0|0|35|48|13"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -79,7 +79,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|17|18|17|5|4|60"
+data = "COMPUTE|35|35|35|6|26|4"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -88,7 +88,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|8|8|8|9|4|60"
+data = "COMPUTE|35|35|26|35|16|4"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -97,7 +97,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|8|8|60"
+data = "COMPUTE|35|35|15|35|6|3"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -106,7 +106,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|8|8|60"
+data = "COMPUTE|35|35|6|35|60|4"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -115,7 +115,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|8|8|60"
+data = "COMPUTE|35|35|35|4|54|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -124,7 +124,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|35|7|41"
+data = "COMPUTE|35|35|35|14|54|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -133,7 +133,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|35|7|60"
+data = "COMPUTE|35|26|35|23|3|38"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -142,7 +142,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|35|44|60"
+data = "COMPUTE|35|17|35|35|14|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -151,7 +151,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|3|60|60"
+data = "COMPUTE|24|14|0|4|43|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -161,7 +161,7 @@ currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
 
-data = "COMPUTE|27|27|28|35|60|60"
+data = "COMPUTE|7|35|35|35|15|37"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -170,7 +170,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|18|18|18|35|3|60"
+data = "COMPUTE|35|16|0|3|55|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -179,7 +179,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|9|9|9|35|60|60"
+data = "COMPUTE|25|35|35|35|15|4"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -188,7 +188,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|2|60|8"
+data = "COMPUTE|24|25|5|3|23|60"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center
@@ -197,7 +197,7 @@ move = current[0]
 currentPos = tuple(exp.robot.center)
 markArea(exp.currentMap, exp.robot.center, exp.robot.head)
 
-data = "COMPUTE|35|35|35|2|18|8"
+data = "COMPUTE|18|35|35|23|26|14"
 split_data = data.split("|")
 sensors = map(float, split_data[1:])
 current_pos = exp.robot.center

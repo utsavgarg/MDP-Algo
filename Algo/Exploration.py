@@ -35,7 +35,7 @@ class Exploration:
         """
         self.timeLimit = timeLimit
         self.exploredArea = 0
-        self.currentMap = np.asarray([[0]*15]*20)
+        self.currentMap = np.zeros([20, 15])
         if sim:
             from Simulator import Robot
             self.robot = Robot(self.currentMap, EAST, START, realMap)
@@ -150,9 +150,9 @@ class Exploration:
         for (r, c) in inds:
             if not ((0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS)):
                 return False
-        return (self.currentMap[inds[0][0], inds[0][1]] == 1 and
-                self.currentMap[inds[1][0], inds[1][1]] == 1 and
-                self.currentMap[inds[2][0], inds[2][1]] == 1)
+        return (self.currentMap[inds[0][0], inds[0][1]] != 2 and
+                self.currentMap[inds[1][0], inds[1][1]] != 2 and
+                self.currentMap[inds[2][0], inds[2][1]] != 2)
 
     def northFree(self):
         """Checks if the north direction is free to move
@@ -206,7 +206,7 @@ class Exploration:
             self.robot.getSensors()
         move = self.nextMove()
         self.getExploredArea()
-        if (self.exploredArea == 300):
+        if (self.exploredArea == 100):
             return move, True
         else:
             return move, False

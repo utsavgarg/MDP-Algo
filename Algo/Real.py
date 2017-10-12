@@ -33,6 +33,7 @@ class Robot:
             realMap (string): File name of the real map
         """
         self.exploredMap = exploredMap
+        print self.exploredMap
         self.direction = direction
         self.center = np.asarray(start)
         self.marked = np.zeros((20, 15))
@@ -62,7 +63,10 @@ class Robot:
             self.head = self.center + [0, -1]
 
     def getValue(self, inds, value, distance, sr):
-        value = round(value - 5, -1)
+        print value
+        if value != 0:
+            value = round(value - 6, -1)
+        print value
         vals = []
         if (value >= distance*10):
             vals = [1]*distance
@@ -70,18 +74,28 @@ class Robot:
             value = int(value//10)
             inds = inds[:value+1]
             vals = [1]*value + [2]
+        print vals, sr
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
-                if (sr):
-                    self.marked[r][c] += 1
-                if (self.exploredMap[r][c] == 2 and sr and vals[idx] == 1 and self.marked[r][c] < 3):
+                # for override
+                # if (self.exploredMap[r][c] == 2 and vals[idx] == 1 and
+                #    self.marked[r][c] < 2):
+                #     self.exploredMap[r][c] = vals[idx]
+                #     self.marked[r][c] == 1
+                # elif self.exploredMap[r][c] == 2:
+                #     break
+                # elif (self.exploredMap[r][c] == 0):
+                #     self.exploredMap[r][c] = vals[idx]
+                # self.marked[r][c] += 1
+                # without override
+                if self.exploredMap[r][c] == 0:
                     self.exploredMap[r][c] = vals[idx]
+                # elif (sr and self.marked[r][c] == 0):
+                #     self.exploredMap[r][c] = vals[idx]
+                #     self.marked[r][c] = 1
                 elif self.exploredMap[r][c] == 2:
                     break
-                elif self.exploredMap[r][c] == 0:
-                    self.exploredMap[r][c] = vals[idx]
-                elif (sr and self.marked[r][c] == 0):
-                    self.exploredMap[r][c] = vals[idx]
+
 
     def getSensors(self, sensor_vals):
         """Generated indices to get values from sensors and gets the values using getValue() function.
@@ -90,7 +104,7 @@ class Robot:
             Numpy array of Numpy arrays: Sensor values from all sensors
         """
         distanceShort = 2
-        distanceLong = 4
+        distanceLong = 5
         r, c = self.center
         # sensor_vals = [FL_SR, FC_SR, FR_SR, RT_SR, RB_LR, LT_LR]
 
@@ -139,30 +153,30 @@ class Robot:
         # Right Top
         if self.direction == NORTH:
             self.getValue(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)),
-                          sensor_vals[3], distanceShort, False)
+                          sensor_vals[3], distanceShort, True)
         elif self.direction == EAST:
             self.getValue(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort),
-                          sensor_vals[3], distanceShort, False)
+                          sensor_vals[3], distanceShort, True)
         elif self.direction == WEST:
             self.getValue(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1],
-                          sensor_vals[3], distanceShort, False)
+                          sensor_vals[3], distanceShort, True)
         else:
             self.getValue(zip([r+1]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
-                          sensor_vals[3], distanceShort, False)
+                          sensor_vals[3], distanceShort, True)
 
         # Right Bottom
         if self.direction == NORTH:
             self.getValue(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)),
-                          sensor_vals[4], distanceLong, True)
+                          sensor_vals[4], distanceLong, False)
         elif self.direction == EAST:
             self.getValue(zip(range(r+2, r+distanceLong+2), [c-1]*distanceLong),
-                          sensor_vals[4], distanceLong, True)
+                          sensor_vals[4], distanceLong, False)
         elif self.direction == WEST:
             self.getValue(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1],
-                          sensor_vals[4], distanceLong, True)
+                          sensor_vals[4], distanceLong, False)
         else:
             self.getValue(zip([r-1]*distanceLong, range(c-distanceLong-1, c-1))[::-1],
-                          sensor_vals[4], distanceLong, True)
+                          sensor_vals[4], distanceLong, False)
 
         # Left Top
         if self.direction == NORTH:
@@ -179,9 +193,13 @@ class Robot:
                           sensor_vals[5], distanceLong, False)
 
     def is_corner(self):
-        corners = [BOTTOM_LEFT_CORNER.tolist(), BOTTOM_RIGHT_CORNER.tolist(),
-                   TOP_RIGHT_CORNER.tolist(), TOP_LEFT_CORNER.tolist()]
-        if self.center.tolist() in corners:
+        if self.center.tolist() == BOTTOM_LEFT_CORNER.tolist() and self.direction == SOUTH:
+            return True
+        elif self.center.tolist() == BOTTOM_RIGHT_CORNER.tolist() and self.direction == EAST:
+            return True
+        elif self.center.tolist() == TOP_RIGHT_CORNER.tolist() and self.direction == NORTH:
+            return True
+        elif self.center.tolist() == TOP_LEFT_CORNER.tolist() and self.direction == WEST:
             return True
         else:
             return False
@@ -192,38 +210,38 @@ class Robot:
         if self.direction == NORTH:
             for i in range(2, 3):
                 if ((r-i) < 0):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
                 elif ((r - i) >= 0 and (self.exploredMap[r-i][c-1] == 2 and
                       self.exploredMap[r-i][c] == 2 and self.exploredMap[r-i][c+1] == 2)):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
         elif self.direction == WEST:
             for i in range(2, 3):
                 if ((c-i) < 0):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
                 elif ((c-i) >= 0 and (self.exploredMap[r-1][c-i] == 2 and
                       self.exploredMap[r][c-i] == 2 and self.exploredMap[r+1][c-i] == 2)):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
         elif self.direction == EAST:
             for i in range(2, 3):
                 if ((c + i) == MAX_COLS):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
                 elif ((c + i) < MAX_COLS and (self.exploredMap[r-1][c+i] == 2 and
                       self.exploredMap[r][c+i] == 2 and self.exploredMap[r+1][c+i] == 2)):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
         else:
             for i in range(2, 3):
                 if ((r+i) == MAX_ROWS):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
                 elif ((r+i) < MAX_ROWS and (self.exploredMap[r+i][c-1] == 2 and
                       self.exploredMap[r+i][c] == 2 and self.exploredMap[r+i][c+1] == 2)):
-                    flag = [True, 'F']
+                    flag = [True, 'C']
                     break
         return flag
 
