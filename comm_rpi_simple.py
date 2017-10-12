@@ -291,6 +291,11 @@ class RPi(threading.Thread):
                         else:
                             calibrate_move = ['L', 'D', 'D']
                         direction = NORTH
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + ['N'] + move +
+                                                   calibrate_move)
+                        self.client_socket.send(get_msg)
+                        time.sleep(1)
                         get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + ['N'] + move +
                                                    calibrate_move)
