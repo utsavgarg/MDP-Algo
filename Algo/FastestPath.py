@@ -4,7 +4,7 @@
 import copy
 import numpy as np
 
-from Constants import MAX_ROWS, MAX_COLS, NORTH, SOUTH, EAST, FORWARD, LEFT, RIGHT
+from Constants import MAX_ROWS, MAX_COLS, NORTH, SOUTH, EAST, WEST, FORWARD, LEFT, RIGHT
 
 
 class Node:
@@ -31,7 +31,7 @@ class Node:
         self.coord = coord
         self.parent = None
         self.H = H
-        self.G = 0
+        self.G = float('inf')
 
 
 class FastestPath:
@@ -66,6 +66,7 @@ class FastestPath:
         self.goal = goal
         self.waypoint = waypoint
         self.index = 1
+        self.direction = direction
         self.path = []
         self.movement = []
         self.calibrateLim = calibrateLim
@@ -134,6 +135,32 @@ class FastestPath:
         # if its explored and not an obstacle
         return [n for n in neighbours if n.value == 1]
 
+
+    def __getCost(self, current_pos, next_pos):
+        if self.direction in [NORTH, SOUTH]:
+            if current_pos[1] == next_pos[1]:
+                return 1
+            else:
+                return 20
+        else:
+            if current_pos[0] == next_pos[0]:
+                return 1
+            else:
+                return 20
+        return 1
+
+
+    def __setDirection(self, prev_pos, current_pos):
+        if prev_pos[0] < current_pos[0]:
+            self.direction = SOUTH
+        elif prev_pos[1] < current_pos[1]:
+            self.direction = EAST
+        elif prev_pos[1] > current_pos[1]:
+            self.direction = WEST
+        else:
+            self.direction = NORTH
+
+
     def __astar(self, start, goal):
         """Implementation of the a* algorithm for finding the shortest path in a 2d grid maze
 
@@ -153,10 +180,14 @@ class FastestPath:
         # set of discovered nodes that have not been evaluated yet
         openSet = set()
         current = self.graph[start[0]][start[1]]
+        current.G = 0
         # add start node to openSet
         openSet.add(current)
+        prev = None
         while (openSet):
             current = min(openSet, key=lambda o: o.G + o.H)
+            if prev:
+                self.__setDirection(prev.coord, current.coord)
             # if goal is reached trace back the path
             if (current == goal):
                 path = []
@@ -173,16 +204,17 @@ class FastestPath:
                         continue
                     if node in openSet:
                         # calculate new G cost
-                        new_g = current.G + 1
+                        new_g = current.G + self.__getCost(current.coord, node.coord)
                         if node.G > new_g:
                             node.G = new_g
                             node.parent = current
                     else:
                         # if neither in openSet nor in closedSet
                         # cost of moving between neighbours is 1
-                        node.G = current.G + 1
+                        node.G = current.G + self.__getCost(current.coord, node.coord)
                         node.parent = current
                         openSet.add(node)
+            prev = copy.deepcopy(current)
         # exception is no path is found
         raise ValueError('No Path Found')
 
