@@ -40,6 +40,7 @@ class Robot:
         self.movement = []
         self.markArea(start, 1)
         self.stepCounter = 0
+        self.phase = 1
 
     def markArea(self, center, value):
         """To mark a 3x3 neighbourhood around the center location with a particular
@@ -74,15 +75,21 @@ class Robot:
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 # for override
-                if (self.exploredMap[r][c] == 2 and vals[idx] == 1 and
-                   self.marked[r][c] < 2):
-                    self.exploredMap[r][c] = vals[idx]
-                    self.marked[r][c] == 1
-                elif self.exploredMap[r][c] == 2:
-                    break
-                elif (self.exploredMap[r][c] == 0):
-                    self.exploredMap[r][c] = vals[idx]
-                self.marked[r][c] += 1
+                if self.phase == 1:
+                    if (self.exploredMap[r][c] == 2 and vals[idx] == 1 and
+                       self.marked[r][c] < 2):
+                        self.exploredMap[r][c] = vals[idx]
+                        self.marked[r][c] == 1
+                    elif self.exploredMap[r][c] == 2:
+                        break
+                    elif (self.exploredMap[r][c] == 0):
+                        self.exploredMap[r][c] = vals[idx]
+                    self.marked[r][c] += 1
+                else:
+                    if self.exploredMap[r][c] == 2:
+                        break
+                    elif (self.exploredMap[r][c] == 0):
+                        self.exploredMap[r][c] = vals[idx]
                 # without override
                 # if self.exploredMap[r][c] == 0:
                 #     self.exploredMap[r][c] = vals[idx]
@@ -243,6 +250,9 @@ class Robot:
 
     def can_calibrate_right(self):
         r, c = self.center
+        print self.center
+        print self.exploredMap.astype(int)
+        print self.direction
         flag = [False, None]
         if self.direction == NORTH:
             for i in range(2, 3):

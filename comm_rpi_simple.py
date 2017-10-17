@@ -28,7 +28,7 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-# currentMap = np.zeros([20, 15])
+currentMap = np.zeros([20, 15])
 
 
 def loadMap():
@@ -155,10 +155,10 @@ def combineMovement(movement):
     counter = 0
     shortMove = []
     while (counter < len(movement)):
-        if (counter <= len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
+        if (counter < len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
             shortMove.append('K')
             counter += 5
-        elif (counter <= len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
+        elif (counter < len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
             shortMove.append('X')
             counter += 3
         else:

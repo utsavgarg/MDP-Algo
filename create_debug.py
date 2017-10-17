@@ -6,7 +6,7 @@ output.write("import os\n" +
              "def markArea(curmap, center, head):\n" +
              "\tcurmap[center[0]-1:center[0]+2, center[1]-1:center[1]+2] = 5\n" +
              "\tcurmap[head[0], head[1]] = 6\n" +
-             "\tprint curmap\n" +
+             "\tprint curmap.astype(int)\n" +
              "\tprint ''\n" +
              "\tcurmap[center[0]-1:center[0]+2, center[1]-1:center[1]+2] = 1\n" +
              "currentMap = np.zeros([20, 15])\n\n" +

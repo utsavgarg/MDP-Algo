@@ -17,12 +17,11 @@ import tornado.websocket as websocket
 import tornado.ioloop as ioloop
 import threading
 from threading import Thread
-from multiprocessing import Process
 
 from tornado.options import define, options
 from Algo.Exploration import Exploration
 from Algo.FastestPath import FastestPath
-from Algo.Constants import START, GOAL, NORTH
+from Algo.Constants import START, GOAL, NORTH, WEST
 
 __author__ = "Utsav Garg"
 
@@ -44,9 +43,11 @@ area = 0
 exp = ''
 fsp = ''
 visited = dict()
+waypoint = None
 steps = 0
 numCycle = 1
 t_s = 0
+direction = 1
 
 map_name = 'map.txt'
 
@@ -272,8 +273,11 @@ def markMap(curMap, waypoint):
 def combineMovement(movement):
     counter = 0
     shortMove = []
-    while (counter < len(movement)-3):
-        if (movement[counter] == 'W' and movement[counter+1] == 'W' and movement[counter+2] == 'W'):
+    while (counter < len(movement)):
+        if (counter < len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
+            shortMove.append('K')
+            counter += 5
+        elif (counter < len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
             shortMove.append('X')
             counter += 3
         else:
@@ -284,16 +288,12 @@ def combineMovement(movement):
 
 
 def fastestPath(fsp, goal, area, waypoint):
-    if waypoint:
-        waypoint[0] = 19 - waypoint[0]
     fsp.getFastestPath()
     logger(json.dumps(fsp.path))
     while (fsp.robot.center.tolist() != goal.tolist()):
         fsp.moveStep()
-        # elapsedTime = round(time.time()-t_s, 2)
-        # update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
-        #        START, GOAL, elapsedTime)
-        # time.sleep(step)
+        update(markMap(np.copy(fsp.exploredMap), waypoint), area, fsp.robot.center, fsp.robot.head,
+               START, GOAL, 0)
     logger('Fastest Path Done !')
 
 
@@ -366,6 +366,10 @@ class RPi(threading.Thread):
                     visited[tuple(current_pos)] = 1
                     update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                            START, GOAL, 0)
+                elif (split_data[0] == 'WAYPOINT'):
+                    global waypoint
+                    waypoint = map(int, split_data[1:])
+                    waypoint[0] = 19 - waypoint[0]
                 elif (split_data[0] == 'COMPUTE'):
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
@@ -381,35 +385,43 @@ class RPi(threading.Thread):
                         if (current_pos in visited):
                             visited[current_pos] += 1
                             if (visited[current_pos] > 3):
+                                print 'case1'
                                 neighbour = exp.getExploredNeighbour()
                                 if (neighbour):
                                     neighbour = np.asarray(neighbour)
                                     fsp = FastestPath(currentMap, exp.robot.center, neighbour,
                                                       exp.robot.direction, None, sim=False)
                                     fastestPath(fsp, neighbour, exp.exploredArea, None)
-                                    move.extend(fsp.movement)
+                                    move.extend(combineMovement(fsp.movement))
+                                    exp.robot.phase = 2
                                     exp.robot.center = neighbour
-                                else:
-                                    break
-                            else:
-                                visited[current_pos] = 1
-                            if (np.array_equal(exp.robot.center, START)):
+                                    exp.robot.direction = fsp.robot.direction
+                            if (np.array_equal(exp.robot.center, START) and exp.exploredArea > 50):
                                 numCycle += 1
                                 if (numCycle > 1 and steps > 4):
+                                    print 'case2'
                                     neighbour = exp.getExploredNeighbour()
                                     if (neighbour):
                                         neighbour = np.asarray(neighbour)
                                         fsp = FastestPath(currentMap, exp.robot.center, neighbour,
                                                           exp.robot.direction, None, sim=False)
                                         fastestPath(fsp, neighbour, exp.exploredArea, None)
-                                        # move.extend(combineMovement(fsp.movement))
-                                        move.extend(fsp.movement)
+                                        move.extend(combineMovement(fsp.movement))
+                                        exp.robot.phase = 2
                                         exp.robot.center = neighbour
-                                    else:
-                                        break
+                                        exp.robot.direction = fsp.robot.direction
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + move + ['S'])
                     else:
+                        move = current[0]
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + move)
+                        self.client_socket.send(get_msg)
+                        print ('Sent %s to RPi' % (get_msg))
+                        log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
+                        log_file.write('Sent %s to RPi\n\n' % (get_msg))
+                        log_file.flush()
+                        time.sleep(2)
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
                         logger('Exploration Done !')
@@ -419,22 +431,28 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        move.extend(combineMovement(fsp.movement))
-                        # move.extend(fsp.movement)
+                        move = combineMovement(fsp.movement)
+                        global direction
+                        if (fsp.robot.direction == WEST):
+                            calibrate_move = ['A', 'L', 'D', 'D']
+                        else:
+                            calibrate_move = ['L', 'D', 'D']
+                        direction = NORTH
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
-                                                   str(exp.robot.descriptor_2())] + move + ['L'])
+                                                   str(exp.robot.descriptor_2())] + ['N'] + move +
+                                                   calibrate_move)
+                        self.client_socket.send(get_msg)
+                        time.sleep(1)
+                        get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
+                                                   str(exp.robot.descriptor_2())] + ['N'] + move +
+                                                   calibrate_move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
-                    # log_file.write('Current Map:\n')
-                    # log_file.write(str(exp.robot.currentMap))
-                    # log_file.write('\n')
                     log_file.write('Sent %s to RPi\n\n' % (get_msg))
                     log_file.flush()
                 elif (split_data[0] == 'FASTEST'):
-                    waypoint = map(int, split_data[1:])
-                    fsp = FastestPath(currentMap, START, GOAL, 2,
-                                      waypoint, sim=False)
+                    fsp = FastestPath(currentMap, START, GOAL, direction, waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
                     # move = fsp.movement
@@ -485,5 +503,5 @@ def func2():
     t1.join()
 
 if __name__ == '__main__':
-    Thread(target = func1).start()
-    Thread(target = func2).start()
+    Thread(target=func1).start()
+    Thread(target=func2).start()
