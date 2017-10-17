@@ -28,14 +28,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-currentMap = np.zeros([20, 15])
+# currentMap = np.zeros([20, 15])
 
 
-# def loadMap():
-#     with open(os.path.join('Maps', 'map.txt')) as f:
-#         return np.genfromtxt(f, dtype=int, delimiter=1)
+def loadMap():
+    with open(os.path.join('Maps', 'wk8.txt')) as f:
+        return np.genfromtxt(f, dtype=int, delimiter=1)
 
-# currentMap = loadMap()
+currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
@@ -154,8 +154,11 @@ def markMap(curMap, waypoint):
 def combineMovement(movement):
     counter = 0
     shortMove = []
-    while (counter < len(movement)-3):
-        if (movement[counter] == 'W' and movement[counter+1] == 'W' and movement[counter+2] == 'W'):
+    while (counter < len(movement)):
+        if (counter <= len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
+            shortMove.append('K')
+            counter += 5
+        elif (counter <= len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
             shortMove.append('X')
             counter += 3
         else:
@@ -283,10 +286,7 @@ class RPi(threading.Thread):
                                           None, sim=False)
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
-                        print fsp.path
-                        print currentMap
-                        print 'move', move, exp.robot.direction, exp.robot.center
-                        move = fsp.movement
+                        move = combineMovement(fsp.movement)
                         global direction
                         if (fsp.robot.direction == WEST):
                             calibrate_move = ['A', 'L', 'D', 'D']
@@ -310,7 +310,7 @@ class RPi(threading.Thread):
                     fsp = FastestPath(currentMap, START, GOAL, direction, waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 100, waypoint)
-                    move = fsp.movement
+                    move = combineMovement(fsp.movement)
                     get_msg = output_formatter('FASTEST', move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))

@@ -62,7 +62,6 @@ class Robot:
             self.head = self.center + [0, -1]
 
     def getValue(self, inds, value, distance, sr):
-        print inds, value, self.center, self.head
         if value != 0:
             value = round(value - 6, -1)
         vals = []
@@ -72,7 +71,6 @@ class Robot:
             value = int(value//10)
             inds = inds[:value+1]
             vals = [1]*value + [2]
-        print vals
         for idx, (r, c) in enumerate(inds):
             if (0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS):
                 # for override
