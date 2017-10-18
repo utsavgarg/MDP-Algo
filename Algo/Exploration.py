@@ -46,6 +46,7 @@ class Exploration:
         self.exploredNeighbours = dict()
         self.sim = sim
         self.calibrateLim = calibrateLim
+        self.virtualWall = [0, 0, MAX_ROWS, MAX_COLS]
 
     def __validInds(self, inds):
         """To check if the passed indices are valid or not
@@ -148,7 +149,8 @@ class Exploration:
             bool: If all indices are free (no obstacle)
         """
         for (r, c) in inds:
-            if not ((0 <= r < MAX_ROWS) and (0 <= c < MAX_COLS)):
+            if not ((self.virtualWall[0] <= r < self.virtualWall[2]) and (
+                     self.virtualWall[1] <= c < self.virtualWall[3])):
                 return False
         return (self.currentMap[inds[0][0], inds[0][1]] == 1 and
                 self.currentMap[inds[1][0], inds[1][1]] == 1 and
@@ -228,6 +230,9 @@ class Exploration:
 
     def getExploredNeighbour(self):
         locs = np.where(self.currentMap == 0)
+        self.virtualWall = [np.min(locs[0]), np.min(locs[1]), np.max(locs[0])+1, np.max(locs[1])+1]
+        if ((self.virtualWall[2]-self.virtualWall[0] < 3) and self.virtualWall[2] < MAX_ROWS-3):
+            self.virtualWall[2] += 3
         locs = np.asarray(zip(locs[0], locs[1]))
         cost = np.abs(locs[:, 0] - self.robot.center[0]) + np.abs(locs[:, 1] - self.robot.center[1])
         cost = cost.tolist()

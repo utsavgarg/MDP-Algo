@@ -385,7 +385,6 @@ class RPi(threading.Thread):
                         if (current_pos in visited):
                             visited[current_pos] += 1
                             if (visited[current_pos] > 3):
-                                print 'case1'
                                 neighbour = exp.getExploredNeighbour()
                                 if (neighbour):
                                     neighbour = np.asarray(neighbour)
@@ -395,11 +394,11 @@ class RPi(threading.Thread):
                                     move.extend(combineMovement(fsp.movement))
                                     exp.robot.phase = 2
                                     exp.robot.center = neighbour
+                                    exp.robot.head = fsp.robot.head
                                     exp.robot.direction = fsp.robot.direction
                             if (np.array_equal(exp.robot.center, START) and exp.exploredArea > 50):
                                 numCycle += 1
                                 if (numCycle > 1 and steps > 4):
-                                    print 'case2'
                                     neighbour = exp.getExploredNeighbour()
                                     if (neighbour):
                                         neighbour = np.asarray(neighbour)
@@ -409,6 +408,7 @@ class RPi(threading.Thread):
                                         move.extend(combineMovement(fsp.movement))
                                         exp.robot.phase = 2
                                         exp.robot.center = neighbour
+                                        exp.robot.head = fsp.robot.head
                                         exp.robot.direction = fsp.robot.direction
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + move + ['S'])
