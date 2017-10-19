@@ -250,9 +250,6 @@ class Robot:
 
     def can_calibrate_right(self):
         r, c = self.center
-        print self.center
-        print self.exploredMap.astype(int)
-        print self.direction
         flag = [False, None]
         if self.direction == NORTH:
             for i in range(2, 3):
