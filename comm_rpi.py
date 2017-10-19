@@ -274,7 +274,10 @@ def combineMovement(movement):
     counter = 0
     shortMove = []
     while (counter < len(movement)):
-        if (counter < len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
+        if (counter < len(movement)-7) and all(x == 'W' for x in movement[counter:counter+7]):
+            shortMove.append('Q')
+            counter += 7
+        elif (counter < len(movement)-5) and all(x == 'W' for x in movement[counter:counter+5]):
             shortMove.append('K')
             counter += 5
         elif (counter < len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
@@ -434,9 +437,9 @@ class RPi(threading.Thread):
                         move = combineMovement(fsp.movement)
                         global direction
                         if (fsp.robot.direction == WEST):
-                            calibrate_move = ['A', 'L', 'D', 'D']
+                            calibrate_move = ['A', 'L', 'O']
                         else:
-                            calibrate_move = ['L', 'D', 'D']
+                            calibrate_move = ['L', 'O']
                         direction = NORTH
                         get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + ['N'] + move +

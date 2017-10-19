@@ -100,7 +100,7 @@ class Exploration:
         else:
             self.robot.moveBot(RIGHT)
             self.robot.moveBot(RIGHT)
-            move.extend((RIGHT, RIGHT))
+            move.extend(('O'))
         if not (self.sim):
             calibrate_front = self.robot.can_calibrate_front()
             calibrate_right = self.robot.can_calibrate_right()
