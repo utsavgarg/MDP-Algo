@@ -28,14 +28,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-# currentMap = np.zeros([20, 15])
+currentMap = np.zeros([20, 15])
 
 
-def loadMap():
-    with open(os.path.join('Maps', 'map.txt')) as f:
-        return np.genfromtxt(f, dtype=int, delimiter=1)
+# def loadMap():
+#     with open(os.path.join('Maps', 'wk8.txt')) as f:
+#         return np.genfromtxt(f, dtype=int, delimiter=1)
 
-currentMap = loadMap()
+# currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
@@ -438,12 +438,12 @@ class RPi(threading.Thread):
                         else:
                             calibrate_move = ['L', 'D', 'D']
                         direction = NORTH
-                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                        get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + ['N'] + move +
                                                    calibrate_move)
                         self.client_socket.send(get_msg)
                         time.sleep(1)
-                        get_msg = output_formatter('DONE', [str(exp.robot.descriptor_1()),
+                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + ['N'] + move +
                                                    calibrate_move)
                     self.client_socket.send(get_msg)
@@ -457,7 +457,7 @@ class RPi(threading.Thread):
                     fastestPath(fsp, GOAL, 300, waypoint)
                     # move = fsp.movement
                     move = combineMovement(fsp.movement)
-                    get_msg = output_formatter('FASTEST', move)
+                    get_msg = output_formatter('FASTEST', move + ['C'])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'):
