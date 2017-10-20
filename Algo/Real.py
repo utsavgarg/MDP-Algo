@@ -64,7 +64,7 @@ class Robot:
 
     def getValue(self, inds, value, distance, sr):
         if value != 0:
-            value = round(value - 6, -1)
+            value = round(value - 5, -1)
         vals = []
         if (value >= distance*10):
             vals = [1]*distance
@@ -196,16 +196,52 @@ class Robot:
                           sensor_vals[5], distanceLong, False)
 
     def is_corner(self):
-        if self.center.tolist() == BOTTOM_LEFT_CORNER.tolist() and self.direction == SOUTH:
-            return True
-        elif self.center.tolist() == BOTTOM_RIGHT_CORNER.tolist() and self.direction == EAST:
-            return True
-        elif self.center.tolist() == TOP_RIGHT_CORNER.tolist() and self.direction == NORTH:
-            return True
-        elif self.center.tolist() == TOP_LEFT_CORNER.tolist() and self.direction == WEST:
-            return True
+        r, c = self.center
+        if self.direction == NORTH:
+            fw = False
+            fw = (r-2 == -1) or (r-2 != -1 and self.exploredMap[r-2][c-1] == 2 and
+                                 self.exploredMap[r-2][c] == 2
+                                 and self.exploredMap[r-2][c+1] == 2)
+            rw = (c+2 == MAX_COLS) or (c+2 != MAX_COLS and self.exploredMap[r-1][c+2] == 2 and
+                                       self.exploredMap[r][c+2] == 2
+                                       and self.exploredMap[r+1][c+2] == 2)
+            if fw and rw:
+                return True
+            else:
+                return False
+        elif self.direction == EAST:
+            fw = (c+2 == MAX_COLS) or (c+2 != MAX_COLS and self.exploredMap[r-1][c+2] == 2 and
+                                       self.exploredMap[r][c+2] == 2
+                                       and self.exploredMap[r+1][c+2] == 2)
+            rw = (r+2 == MAX_ROWS) or (r+2 != MAX_ROWS and self.exploredMap[r+2][c-1] == 2 and
+                                       self.exploredMap[r+2][c] == 2
+                                       and self.exploredMap[r+2][c+1] == 2)
+            if fw and rw:
+                return True
+            else:
+                return False
+        elif self.direction == SOUTH:
+            fw = (r+2 == MAX_ROWS) or (r+2 != MAX_ROWS and self.exploredMap[r+2][c-1] == 2 and
+                                       self.exploredMap[r+2][c] == 2
+                                       and self.exploredMap[r+2][c+1] == 2)
+            rw = (c-2 == -1) or (c-2 != -1 and self.exploredMap[r-1][c-2] == 2 and
+                                 self.exploredMap[r][c-2] == 2
+                                 and self.exploredMap[r+1][c-2] == 2)
+            if fw and rw:
+                return True
+            else:
+                return False
         else:
-            return False
+            fw = (c-2 == -1) or (c-2 != -1 and self.exploredMap[r-1][c-2] == 2 and
+                                 self.exploredMap[r][c-2] == 2
+                                 and self.exploredMap[r+1][c-2] == 2)
+            rw = (r-2 == -1) or (r-2 != -1 and self.exploredMap[r-2][c-1] == 2 and
+                                 self.exploredMap[r-2][c] == 2
+                                 and self.exploredMap[r-2][c+1] == 2)
+            if fw and rw:
+                return True
+            else:
+                return False
 
     def can_calibrate_front(self):
         r, c = self.center
