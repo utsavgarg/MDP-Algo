@@ -28,14 +28,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-# currentMap = np.zeros([20, 15])
+currentMap = np.zeros([20, 15])
 
 
-def loadMap():
-    with open(os.path.join('Maps', 'debug5.txt')) as f:
-        return np.genfromtxt(f, dtype=int, delimiter=1)
+# def loadMap():
+#     with open(os.path.join('Maps', 'debug5.txt')) as f:
+#         return np.genfromtxt(f, dtype=int, delimiter=1)
 
-currentMap = loadMap()
+# currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
