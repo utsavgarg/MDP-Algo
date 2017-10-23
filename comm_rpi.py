@@ -459,6 +459,7 @@ class RPi(threading.Thread):
                     log_file.write('Sent %s to RPi\n\n' % (get_msg))
                     log_file.flush()
                 elif (split_data[0] == 'FASTEST'):
+                    print currentMap
                     fsp = FastestPath(currentMap, START, GOAL, direction, waypoint, sim=False)
                     current_pos = fsp.robot.center
                     fastestPath(fsp, GOAL, 300, waypoint)
