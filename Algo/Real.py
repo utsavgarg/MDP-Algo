@@ -77,7 +77,7 @@ class Robot:
                 # for override
                 if self.phase == 1:
                     if (self.exploredMap[r][c] == 2 and vals[idx] == 1 and
-                       self.marked[r][c] < 2):
+                       self.marked[r][c] < 2 and sr):
                         self.exploredMap[r][c] = vals[idx]
                         self.marked[r][c] == 1
                     elif self.exploredMap[r][c] == 2:

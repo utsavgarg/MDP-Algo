@@ -28,14 +28,14 @@ __author__ = "Utsav Garg"
 # Global Variables
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
-currentMap = np.zeros([20, 15])
+# currentMap = np.zeros([20, 15])
 
 
-# def loadMap():
-#     with open(os.path.join('Maps', 'wk8.txt')) as f:
-#         return np.genfromtxt(f, dtype=int, delimiter=1)
+def loadMap():
+    with open(os.path.join('Maps', 'debug5.txt')) as f:
+        return np.genfromtxt(f, dtype=int, delimiter=1)
 
-# currentMap = loadMap()
+currentMap = loadMap()
 
 log_file = open('log.txt', 'w')
 
@@ -245,6 +245,7 @@ def exploration(exp, limit, coverage):
     logger('Exploration Done !')
     logger("Map Descriptor 1  -->  "+str(exp.robot.descriptor_1()))
     logger("Map Descriptor 2  -->  "+str(exp.robot.descriptor_2()))
+    print currentMap
     fsp = FastestPath(currentMap, exp.robot.center, START, exp.robot.direction, None)
     logger('Fastest Path Started !')
     fastestPath(fsp, START, exp.exploredArea, None)
@@ -377,9 +378,9 @@ class RPi(threading.Thread):
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
+                    currentMap = exp.currentMap
                     if (not current[1]):
                         move = current[0]
-                        currentMap = exp.currentMap
                         elapsedTime = round(time.time()-t_s, 2)
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
@@ -399,6 +400,7 @@ class RPi(threading.Thread):
                                     exp.robot.center = neighbour
                                     exp.robot.head = fsp.robot.head
                                     exp.robot.direction = fsp.robot.direction
+                                    currentMap = exp.currentMap
                             if (np.array_equal(exp.robot.center, START) and exp.exploredArea > 50):
                                 numCycle += 1
                                 if (numCycle > 1 and steps > 4):
@@ -413,6 +415,7 @@ class RPi(threading.Thread):
                                         exp.robot.center = neighbour
                                         exp.robot.head = fsp.robot.head
                                         exp.robot.direction = fsp.robot.direction
+                                        currentMap = exp.currentMap
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + move + ['S'])
                     else:
@@ -435,6 +438,7 @@ class RPi(threading.Thread):
                         logger('Fastest Path Started !')
                         fastestPath(fsp, START, exp.exploredArea, None)
                         move = combineMovement(fsp.movement)
+                        currentMap = exp.currentMap
                         global direction
                         if (fsp.robot.direction == WEST):
                             calibrate_move = ['A', 'L', 'O']
