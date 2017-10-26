@@ -90,7 +90,7 @@ class FastestPath:
         # this will create a grid of coordinates
         cols, rows = np.meshgrid(range(0, 15), range(0, 20))
         cost = np.zeros([20, 15])
-        cost = np.abs(rows - goal[0]) + np.abs(cols - goal[1])
+        cost = np.sqrt(np.square(rows - goal[0]) + np.square(cols - goal[1]))
         return cost
 
     def __validInds(self, inds):
