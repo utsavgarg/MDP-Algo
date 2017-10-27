@@ -141,12 +141,12 @@ class FastestPath:
             if current_pos[1] == next_pos[1]:
                 return 1
             else:
-                return 20
+                return 50
         else:
             if current_pos[0] == next_pos[0]:
                 return 1
             else:
-                return 20
+                return 50
         return 1
 
 

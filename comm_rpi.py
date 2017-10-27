@@ -29,10 +29,11 @@ __author__ = "Utsav Garg"
 define("port", default=8888, help="run on the given port", type=int)
 clients = dict()
 currentMap = np.zeros([20, 15])
+mdfCounter = 3
 
 
 # def loadMap():
-#     with open(os.path.join('Maps', 'debug5.txt')) as f:
+#     with open(os.path.join('Maps', 'sample_wk11.txt')) as f:
 #         return np.genfromtxt(f, dtype=int, delimiter=1)
 
 # currentMap = loadMap()
@@ -354,9 +355,10 @@ class RPi(threading.Thread):
 
         # Receive and send data to RPi data
     def receive_send(self):
+        time_t = time.time()
         while True:
             current_pos = None
-            data = self.client_socket.recv(1024)
+            data = self.client_socket.recv(2048)
             log_file.write(data+'\n')
             log_file.flush()
             if (data):
@@ -375,11 +377,13 @@ class RPi(threading.Thread):
                     waypoint = map(int, split_data[1:])
                     waypoint[0] = 19 - waypoint[0]
                 elif (split_data[0] == 'COMPUTE'):
+                    print 'Time 0: %s s' % (time.time() - time_t)
                     sensors = map(float, split_data[1:])
                     current_pos = exp.robot.center
                     current = exp.moveStep(sensors)
                     currentMap = exp.currentMap
                     if (not current[1]):
+                        time_t = time.time()
                         move = current[0]
                         elapsedTime = round(time.time()-t_s, 2)
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
@@ -416,8 +420,17 @@ class RPi(threading.Thread):
                                         exp.robot.head = fsp.robot.head
                                         exp.robot.direction = fsp.robot.direction
                                         currentMap = exp.currentMap
-                        get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
-                                                   str(exp.robot.descriptor_2())] + move + ['S'])
+                        print 'Time 1: %s s' % (time.time() - time_t)
+                        time_t = time.time()
+                        global mdfCounter
+                        if mdfCounter == 3:
+                            get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
+                                                       str(exp.robot.descriptor_2())] + move + ['S'])
+                            mdfCounter = 0
+                        else:
+                            get_msg = output_formatter('MOVEMENT', [str(0), str(0)] + move + ['S'])
+                            mdfCounter += 1
+                        print 'Time 2: %s s' % (time.time() - time_t)
                     else:
                         move = current[0]
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
@@ -455,6 +468,7 @@ class RPi(threading.Thread):
                                                    calibrate_move)
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
+                    time_t = time.time()
                     log_file.write('Robot Center: %s\n' % (str(exp.robot.center)))
                     log_file.write('Sent %s to RPi\n\n' % (get_msg))
                     log_file.flush()
@@ -465,7 +479,7 @@ class RPi(threading.Thread):
                     fastestPath(fsp, GOAL, 300, waypoint)
                     # move = fsp.movement
                     move = combineMovement(fsp.movement)
-                    get_msg = output_formatter('FASTEST', move + ['C'])
+                    get_msg = output_formatter('FASTEST', ['N'] + move + ['C'])
                     self.client_socket.send(get_msg)
                     print ('Sent %s to RPi' % (get_msg))
                 elif (split_data[0] == 'MANUAL'):

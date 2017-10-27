@@ -64,7 +64,7 @@ class Robot:
 
     def getValue(self, inds, value, distance, sr):
         if value != 0:
-            value = round(value - 5, -1)
+            value = round(value - 6, -1)
         vals = []
         if (value >= distance*10):
             vals = [1]*distance
