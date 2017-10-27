@@ -91,6 +91,7 @@ class FastestPath:
         cols, rows = np.meshgrid(range(0, 15), range(0, 20))
         cost = np.zeros([20, 15])
         cost = np.sqrt(np.square(rows - goal[0]) + np.square(cols - goal[1]))
+        cost /= np.max(cost)
         return cost
 
     def __validInds(self, inds):
@@ -139,14 +140,14 @@ class FastestPath:
     def __getCost(self, current_pos, next_pos):
         if self.direction in [NORTH, SOUTH]:
             if current_pos[1] == next_pos[1]:
-                return 1
+                return 0
             else:
-                return 50
+                return 1
         else:
             if current_pos[0] == next_pos[0]:
-                return 1
+                return 0
             else:
-                return 50
+                return 1
         return 1
 
 
