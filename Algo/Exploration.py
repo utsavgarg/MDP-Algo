@@ -4,7 +4,7 @@
 import numpy as np
 import time
 
-from Constants import NORTH, SOUTH, EAST, FORWARD, LEFT, RIGHT, START, MAX_ROWS, MAX_COLS
+from Constants import NORTH, SOUTH, WEST, EAST, FORWARD, LEFT, RIGHT, START, MAX_ROWS, MAX_COLS
 
 __author__ = "Utsav Garg"
 
@@ -82,25 +82,50 @@ class Exploration:
         """Decides which direction is free and commands the robot the next action
         """
         move = []
-        if (self.checkFree([1, 2, 3, 0])):
+        # multi step
+        front = self.frontFree()
+        if (self.checkFree([1, 2, 3, 0], self.robot.center)):
             self.robot.moveBot(RIGHT)
             move.append(RIGHT)
-            if (self.checkFree([0, 1, 2, 3])):
+            front = self.frontFree()
+            for i in range(front):
                 self.robot.moveBot(FORWARD)
-                move.append(FORWARD)
-        elif (self.checkFree([0, 1, 2, 3])):
-            self.robot.moveBot(FORWARD)
-            move.append(FORWARD)
-        elif (self.checkFree([3, 0, 1, 2])):
+            move.extend([FORWARD]*front)
+        elif (front):
+            for i in range(front):
+                self.robot.moveBot(FORWARD)
+            move.extend([FORWARD]*front)
+        elif (self.checkFree([3, 0, 1, 2], self.robot.center)):
             self.robot.moveBot(LEFT)
             move.append(LEFT)
-            if (self.checkFree([0, 1, 2, 3])):
+            front = self.frontFree()
+            for i in range(front):
                 self.robot.moveBot(FORWARD)
-                move.append(FORWARD)
+            move.extend([FORWARD]*front)
         else:
             self.robot.moveBot(RIGHT)
             self.robot.moveBot(RIGHT)
             move.extend(('O'))
+        # single step
+        # if (self.checkFree([1, 2, 3, 0], self.robot.center)):
+        #     self.robot.moveBot(RIGHT)
+        #     move.append(RIGHT)
+        #     if (self.checkFree([0, 1, 2, 3], self.robot.center)):
+        #         self.robot.moveBot(FORWARD)
+        #         move.append(FORWARD)
+        # elif (self.checkFree([0, 1, 2, 3], self.robot.center)):
+        #     self.robot.moveBot(FORWARD)
+        #     move.append(FORWARD)
+        # elif (self.checkFree([3, 0, 1, 2], self.robot.center)):
+        #     self.robot.moveBot(LEFT)
+        #     move.append(LEFT)
+        #     if (self.checkFree([0, 1, 2, 3], self.robot.center)):
+        #         self.robot.moveBot(FORWARD)
+        #         move.append(FORWARD)
+        # else:
+        #     self.robot.moveBot(RIGHT)
+        #     self.robot.moveBot(RIGHT)
+        #     move.extend(('O'))
         if not (self.sim):
             calibrate_front = self.robot.can_calibrate_front()
             calibrate_right = self.robot.can_calibrate_right()
@@ -114,7 +139,7 @@ class Exploration:
                 # self.robot.stepCounter = 0
         return move
 
-    def checkFree(self, order):
+    def checkFree(self, order, center):
         """Checks if a specific direction is free to move to
 
         Args:
@@ -124,8 +149,8 @@ class Exploration:
         Returns:
             bool: If the queried direction is free
         """
-        directionFree = np.asarray([self.northFree(), self.eastFree(),
-                                    self.southFree(), self.westFree()])
+        directionFree = np.asarray([self.northFree(center), self.eastFree(center),
+                                    self.southFree(center), self.westFree(center)])
         directionFree = directionFree[order]
         if self.robot.direction == NORTH:
             return directionFree[0]
@@ -153,45 +178,122 @@ class Exploration:
                 self.currentMap[inds[1][0], inds[1][1]] == 1 and
                 self.currentMap[inds[2][0], inds[2][1]] == 1)
 
-    def northFree(self):
+    def northFree(self, center):
         """Checks if the north direction is free to move
 
         Returns:
             bool: if north is free
         """
-        r, c = self.robot.center
+        r, c = center
         inds = [[r-2, c], [r-2, c-1], [r-2, c+1]]
         return self.validMove(inds)
 
-    def eastFree(self):
+    def eastFree(self, center):
         """Checks if the east direction is free to move
 
         Returns:
             bool: if east is free
         """
-        r, c = self.robot.center
+        r, c = center
         inds = [[r, c+2], [r-1, c+2], [r+1, c+2]]
         return self.validMove(inds)
 
-    def southFree(self):
+    def southFree(self, center):
         """Checks if the south direction is free to move
 
         Returns:
             bool: if south is free
         """
-        r, c = self.robot.center
+        r, c = center
         inds = [[r+2, c], [r+2, c-1], [r+2, c+1]]
         return self.validMove(inds)
 
-    def westFree(self):
+    def westFree(self, center):
         """Checks if the west direction is free to move
 
         Returns:
             bool: if west is free
         """
-        r, c = self.robot.center
+        r, c = center
         inds = [[r, c-2], [r-1, c-2], [r+1, c-2]]
         return self.validMove(inds)
+
+    def frontFree(self):
+        r, c = self.robot.center
+        counter = 0
+        if self.robot.direction == NORTH and self.validMove([[r-2, c], [r-2, c-1], [r-2, c+1]]):
+            counter = 1
+            while(True):
+                if (self.validMove([[r-2-counter, c], [r-2-counter, c-1], [r-2-counter, c+1]])) and\
+                        not self.checkFree([1, 2, 3, 0], [r-(counter), c]) and\
+                        self.checkExplored([r-(counter), c]):
+                    counter += 1
+                else:
+                    break
+        elif self.robot.direction == EAST and self.validMove([[r, c+2], [r-1, c+2], [r+1, c+2]]):
+            counter = 1
+            while(True):
+                if (self.validMove([[r, c+2+counter], [r-1, c+2+counter], [r+1, c+2+counter]])) and\
+                        not self.checkFree([1, 2, 3, 0], [r, c+(counter)]) and\
+                        self.checkExplored([r, c+(counter)]):
+                    counter += 1
+                else:
+                    break
+        elif self.robot.direction == WEST and self.validMove([[r, c-2], [r-1, c-2], [r+1, c-2]]):
+            counter = 1
+            while(True):
+                if (self.validMove([[r, c-2-counter], [r-1, c-2-counter], [r+1, c-2-counter]])) and\
+                        not self.checkFree([1, 2, 3, 0], [r, c-(counter)]) and\
+                        self.checkExplored([r, c-(counter)]):
+                    counter += 1
+                else:
+                    break
+        elif self.robot.direction == SOUTH and self.validMove([[r+2, c], [r+2, c-1], [r+2, c+1]]):
+            counter = 1
+            while(True):
+                if (self.validMove([[r+2+counter, c], [r+2+counter, c-1], [r+2+counter, c+1]])) and\
+                        not self.checkFree([1, 2, 3, 0], [r+(counter), c]) and\
+                        self.checkExplored([r+(counter), c]):
+                    counter += 1
+                else:
+                    break
+        return counter
+
+
+    def checkExplored(self, center):
+        r, c = center
+        flag = True
+        inds = []
+        distanceShort = 3
+        distanceLong = 5
+        if self.robot.direction == NORTH:
+            inds.append(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)))
+            inds.append(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)))
+            inds.append(zip([r-1]*distanceLong, range(c-distanceLong-1, c-1))[::-1])
+        elif self.robot.direction == EAST:
+            inds.append(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort))
+            inds.append(zip(range(r+2, r+distanceLong+2), [c-1]*distanceLong))
+            inds.append(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1])
+        elif self.robot.direction == WEST:
+            inds.append(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1])
+            inds.append(zip(range(r-distanceLong-1, r-1), [c+1]*distanceLong)[::-1])
+            inds.append(zip(range(r+2, r+distanceLong+2), [c-1]*distanceLong))
+        else:
+            inds.append(zip([r+1]*distanceShort, range(c-distanceShort-1, c-1))[::-1])
+            inds.append(zip([r-1]*distanceLong, range(c-distanceLong-1, c-1))[::-1])
+            inds.append(zip([r+1]*distanceLong, range(c+2, c+distanceLong+2)))
+        for sensor in inds:
+            if flag:
+                for (x, y) in sensor:
+                    if (x < self.virtualWall[0] or x == self.virtualWall[2] or
+                            y < self.virtualWall[1] or y == self.virtualWall[3] or
+                            self.currentMap[x, y] == 2):
+                        break
+                    elif (self.currentMap[x, y] == 0):
+                        flag = False
+                        break
+        return flag
+
 
     def moveStep(self, sensor_vals=None):
         """Moves the robot one step for exploration

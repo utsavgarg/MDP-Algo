@@ -384,7 +384,7 @@ class RPi(threading.Thread):
                     currentMap = exp.currentMap
                     if (not current[1]):
                         time_t = time.time()
-                        move = current[0]
+                        move = combineMovement(current[0])
                         elapsedTime = round(time.time()-t_s, 2)
                         update(exp.currentMap, exp.exploredArea, exp.robot.center, exp.robot.head,
                                START, GOAL, elapsedTime)
@@ -432,7 +432,7 @@ class RPi(threading.Thread):
                             mdfCounter += 1
                         print 'Time 2: %s s' % (time.time() - time_t)
                     else:
-                        move = current[0]
+                        move = combineMovement(current[0])
                         get_msg = output_formatter('MOVEMENT', [str(exp.robot.descriptor_1()),
                                                    str(exp.robot.descriptor_2())] + move)
                         self.client_socket.send(get_msg)

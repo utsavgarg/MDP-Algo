@@ -211,7 +211,7 @@ def exploration(exp, limit, coverage):
             visited[currentPos] = 1
         if (np.array_equal(exp.robot.center, START)):
             numCycle += 1
-            if (numCycle > 1 and steps > 4):
+            if (numCycle > 1 and steps > 4 and exp.exploredArea < 100):
                 neighbour = exp.getExploredNeighbour()
                 if (neighbour):
                     neighbour = np.asarray(neighbour)
