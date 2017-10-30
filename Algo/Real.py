@@ -62,7 +62,7 @@ class Robot:
         else:
             self.head = self.center + [0, -1]
 
-    def getValue(self, inds, value, distance, sr):
+    def getValue(self, inds, value, distance, sr, right=False):
         if value != 0:
             value = round(value - 6, -1)
         vals = []
@@ -77,7 +77,7 @@ class Robot:
                 # for override
                 if self.phase == 1:
                     if (self.exploredMap[r][c] == 2 and vals[idx] == 1 and
-                       self.marked[r][c] < 2 and sr):
+                       self.marked[r][c] < 2 and sr and (not right)):
                         self.exploredMap[r][c] = vals[idx]
                         self.marked[r][c] == 1
                     elif self.exploredMap[r][c] == 2:
@@ -156,16 +156,16 @@ class Robot:
         # Right Top
         if self.direction == NORTH:
             self.getValue(zip([r-1]*distanceShort, range(c+2, c+distanceShort+2)),
-                          sensor_vals[3], distanceShort, True)
+                          sensor_vals[3], distanceShort, True, True)
         elif self.direction == EAST:
             self.getValue(zip(range(r+2, r+distanceShort+2), [c+1]*distanceShort),
-                          sensor_vals[3], distanceShort, True)
+                          sensor_vals[3], distanceShort, True, True)
         elif self.direction == WEST:
             self.getValue(zip(range(r-distanceShort-1, r-1), [c-1]*distanceShort)[::-1],
-                          sensor_vals[3], distanceShort, True)
+                          sensor_vals[3], distanceShort, True, True)
         else:
             self.getValue(zip([r+1]*distanceShort, range(c-distanceShort-1, c-1))[::-1],
-                          sensor_vals[3], distanceShort, True)
+                          sensor_vals[3], distanceShort, True, True)
 
         # Right Bottom
         if self.direction == NORTH:

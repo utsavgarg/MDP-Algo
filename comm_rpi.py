@@ -285,6 +285,9 @@ def combineMovement(movement):
         elif (counter < len(movement)-3) and all(x == 'W' for x in movement[counter:counter+3]):
             shortMove.append('X')
             counter += 3
+        elif (counter < len(movement)-2) and all(x == 'W' for x in movement[counter:counter+2]):
+            shortMove.append('P')
+            counter += 2
         else:
             shortMove.append(movement[counter])
             counter += 1
