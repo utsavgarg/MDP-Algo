@@ -131,12 +131,10 @@ class Exploration:
             calibrate_right = self.robot.can_calibrate_right()
             if self.robot.is_corner():
                 move.append('L')
+            elif (calibrate_right[0]):
+                move.append(calibrate_right[1])
             elif (calibrate_front[0]):
                 move.append(calibrate_front[1])
-            elif (calibrate_right[0]):
-                # if (self.robot.stepCounter > self.calibrateLim):
-                move.append(calibrate_right[1])
-                # self.robot.stepCounter = 0
         return move
 
     def checkFree(self, order, center):
